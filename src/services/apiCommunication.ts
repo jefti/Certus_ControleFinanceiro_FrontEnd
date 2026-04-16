@@ -8,10 +8,14 @@ export const apiCommunication = axios.create({
 })
 
 apiCommunication.interceptors.request.use((config) => {
-  const token = localStorage.getItem('token')
+  const authData = localStorage.getItem('@certus:auth')
 
-  if (token) {
-    config.headers.Authorization = `Bearer ${token}`
+  if (authData) {
+    const session = JSON.parse(authData)
+
+    if (session.token) {
+      config.headers.Authorization = `Bearer ${session.token}`
+    }
   }
 
   return config

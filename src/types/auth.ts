@@ -14,6 +14,11 @@ export interface SignInPayload {
   senha: string
 }
 
+export interface SignInResponse {
+  token: string
+  usuario: AuthUser
+}
+
 export interface AuthContextData {
   user: AuthUser | null
   token: string | null

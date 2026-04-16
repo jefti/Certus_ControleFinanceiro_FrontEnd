@@ -10,6 +10,7 @@ import type {
   AuthUser,
   SignInPayload,
 } from "../types/auth";
+import { signInRequest } from "../services/authService";
 
 interface AuthProviderProps {
   children: ReactNode;
@@ -31,10 +32,16 @@ export function AuthProvider({ children }: AuthProviderProps) {
   }, []);
 
   async function signIn(data: SignInPayload) {
-    const session: AuthSession = await mockSignIn();
-    saveAuthSession(session)
-    setUser(session.user)
-    setToken(session.token)
+    const response = await signInRequest(data);
+
+    const session: AuthSession = {
+      token: response.token,
+      user: response.usuario,
+    };
+
+    saveAuthSession(session);
+    setUser(session.user);
+    setToken(session.token);
   }
 
   function signOut() {
@@ -43,17 +50,13 @@ export function AuthProvider({ children }: AuthProviderProps) {
     setToken(null);
   }
 
-  async function mockSignIn() {
-    return {
-      token: 'token-fake',
-      user: {
-        id: 1,
-        nome: 'Usuário Teste',
-        email: 'email@teste.com'
-      },
-    }
-  }
-
-  const value: AuthContextData = { user, token, isAuthenticated: Boolean(user && token), signIn, signOut };
+  const value: AuthContextData = {
+    user,
+    token,
+    isAuthenticated: Boolean(user && token),
+    signIn,
+    signOut,
+  };
+  
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }
