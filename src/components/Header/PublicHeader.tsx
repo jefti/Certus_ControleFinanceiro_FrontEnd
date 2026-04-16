@@ -1,14 +1,25 @@
 import { Link } from 'react-router-dom'
+import './header.css'
 
 export function PublicHeader() {
   return (
-    <header>
-      <nav>
-        <Link to="/">Certus Controle Financeiro</Link>
-        <Link to="/login">Login</Link>
-        <Link to="/cadastro">Cadastro</Link>
-        <Link to="/recuperar-senha">Recuperar senha</Link>
-      </nav>
+    <header className="app-header">
+      <div className="app-header__inner">
+        <Link className="app-header__brand" to="/">
+          {/* <img className="app-header__logo" src={logo} alt="Certus" /> */}
+          Certus
+        </Link>
+
+        <nav className="app-header__nav">
+          <Link className="app-header__link" to="/login">
+            Login
+          </Link>
+
+          <Link className="app-header__cta" to="/cadastro">
+            Cadastrar
+          </Link>
+        </nav>
+      </div>
     </header>
   )
 }

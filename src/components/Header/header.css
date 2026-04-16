@@ -1,0 +1,94 @@
+.app-header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 1000;
+
+  background: #ffffff;
+  border-bottom: 2px solid #2b7de0;
+}
+
+.app-header__inner {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 16px;
+}
+
+.app-header__brand {
+  display: inline-flex;
+  align-items: center;
+}
+
+.app-header__brand--text {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: #1d2b38;
+  letter-spacing: 0.08em;
+}
+
+.app-header__logo {
+  height: 24px;
+  width: auto;
+  object-fit: contain;
+}
+
+.app-header__nav {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+.app-header__link {
+  font-size: 0.8rem;
+  font-weight: 500;
+  color: #1d2b38;
+}
+
+.app-header__link:hover {
+  opacity: 0.8;
+}
+
+.app-header__cta {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 90px;
+  padding: 8px 14px;
+  border-radius: 6px;
+  background: #24384a;
+  color: #ffffff;
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+
+.app-header__cta:hover {
+  background: #1b2c3b;
+}
+
+.app-header__actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.app-header__user {
+  color: #5f6b76;
+  font-size: 0.85rem;
+}
+
+.app-header__button {
+  border: none;
+  border-radius: 6px;
+  background: #24384a;
+  color: white;
+  padding: 8px 14px;
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+
+.app-header__button:hover {
+  background: #1b2c3b;
+}
