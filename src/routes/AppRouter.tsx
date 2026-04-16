@@ -1,32 +1,40 @@
 import { Route, Routes } from 'react-router-dom'
 import { PublicRoute } from './PublicRoute'
 import { PrivateRoute } from './PrivateRoute'
-
-import { HomePage } from '../pages/HomePage'
-import { LoginPage } from '../pages/LoginPage'
-import { RegisterPage } from '../pages/RegisterPage'
-import { ForgotPasswordPage } from '../pages/ForgotPasswordPage'
-import { AuthenticatedLandingPage } from '../pages/AuthenticatedLandingPage'
-import { DashboardPage } from '../pages/DashboardPage'
-import { NotFoundPage } from '../pages/NotFoundPage'
+import { PublicLayout } from '../layouts/PublicLayout'
+import { PrivateLayout } from '../layouts/PrivateLayout'
+import { HomePage } from '../pages/HomePage/HomePage'
+import { LoginPage } from '../pages/LoginPage/LoginPage'
+import { RegisterPage } from '../pages/RegisterPage/RegisterPage'
+import { ForgotPasswordPage } from '../pages/ForgotPasswordPage/ForgotPasswordPage'
+import { AuthenticatedLandingPage } from '../pages/AuthenticatedLandingPage/AuthenticatedLandingPage'
+import { DashboardPage } from '../pages/DashboardPage/DashboardPage'
+import { NotFoundPage } from '../pages/NotFoundPage/NotFoundPage'
+import { NotFoundLayout } from '../layouts/NotFoundLayout'
 
 export function AppRouter() {
   return (
     <Routes>
-      <Route path="/" element={<HomePage />} />
-
       <Route element={<PublicRoute />}>
-        <Route path="/login" element={<LoginPage />} />
-        <Route path="/cadastro" element={<RegisterPage />} />
-        <Route path="/recuperar-senha" element={<ForgotPasswordPage />} />
+        <Route element={<PublicLayout />}>
+          <Route path="/" element={<HomePage />} />
+          <Route path="/login" element={<LoginPage />} />
+          <Route path="/cadastro" element={<RegisterPage />} />
+          <Route path="/recuperar-senha" element={<ForgotPasswordPage />} />
+        </Route>
       </Route>
 
       <Route element={<PrivateRoute />}>
-        <Route path="/inicio" element={<AuthenticatedLandingPage />} />
-        <Route path="/dashboard" element={<DashboardPage />} />
+        <Route element={<PrivateLayout />}>
+          <Route path="/inicio" element={<AuthenticatedLandingPage />} />
+          <Route path="/dashboard" element={<DashboardPage />} />
+        </Route>
       </Route>
 
-      <Route path="*" element={<NotFoundPage />} />
+
+      <Route element={<NotFoundLayout />}>
+        <Route path="*" element={<NotFoundPage />} />
+      </Route>
     </Routes>
   )
 }
