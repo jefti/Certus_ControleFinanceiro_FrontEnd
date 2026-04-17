@@ -24,8 +24,7 @@ export function LoginPage() {
     navigate("/inicio");
   }
 
-  const rememberPasswordComponent = () => {
-    return (
+  const rememberPasswordComponent = (
       <label className="login-helper-text">
         <input
           type="checkbox"
@@ -35,18 +34,15 @@ export function LoginPage() {
         Lembrar-me
       </label>
     );
-  };
 
-  const forgotPasswordComponent = () => {
-    return (
+
+  const forgotPasswordComponent = (
       <a className="login-helper-link" href="/recuperar-senha">
         Esqueceu Sua Senha?
       </a>
     );
-  };
 
-  const registerComponent = () => {
-    return (
+  const registerComponent = (
       <span className="login-register-text">
         Ainda não é cliente?{" "}
         <a className="login-register-link" href="/cadastro">
@@ -54,7 +50,6 @@ export function LoginPage() {
         </a>
       </span>
     );
-  };
 
   return (
     <section className="login-page">
@@ -77,12 +72,12 @@ export function LoginPage() {
             placeholder="********"
             value={senha}
             onChange={(event) => setSenha(event.target.value)}
-            leftContent={rememberPasswordComponent()}
-            rightContent={forgotPasswordComponent()}
+            leftContent={rememberPasswordComponent}
+            rightContent={forgotPasswordComponent}
           />
 
           <div className="login-footer">
-            <PrimaryButton type="submit" footer={registerComponent()}>
+            <PrimaryButton type="submit" footer={registerComponent}>
               Entrar
             </PrimaryButton>
           </div>
