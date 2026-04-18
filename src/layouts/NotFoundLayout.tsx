@@ -7,9 +7,9 @@ export function NotFoundLayout() {
   const { isAuthenticated } = useAuth()
 
   return (
-    <>
+    < >
       {isAuthenticated ? <PrivateHeader /> : <PublicHeader />}
-      <main>
+      <main className="app-content">
         <Outlet />
       </main>
     </>
