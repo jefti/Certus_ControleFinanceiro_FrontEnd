@@ -15,13 +15,12 @@ export function LoginPage() {
 
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
-
     await signIn({
       email: "teste@email.com",
       senha: "123456",
-    });
-
-    navigate("/inicio");
+    }); 
+    
+   navigate("/inicio");
   }
 
   const rememberPasswordComponent = (
@@ -62,6 +61,7 @@ export function LoginPage() {
           <TextField
             label="Seu Email:"
             type="email"
+            placeholder="seu@email.com"
             value={email}
             onChange={(event) => setEmail(event.target.value)}
           />
