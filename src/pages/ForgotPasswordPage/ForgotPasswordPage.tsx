@@ -69,7 +69,7 @@ export function ForgotPasswordPage() {
         href="/"
         onClick={(e) => {
           e.preventDefault();
-          navigate("/");
+          navigate("/login");
         }}
       >
         Voltar para login
@@ -89,21 +89,18 @@ export function ForgotPasswordPage() {
         </div>
 
         <form className="forgot-password-form" onSubmit={handleSubmit}>
-          <h2 className="forgot-password-title">Recuperação de Senha</h2>
-
-          <p className="forgot-password-description">
-            Informe seu e-mail para receber as instruções de recuperação.
-          </p>
-
+          
           <TextField
             label="Seu Email:"
             type="email"
             placeholder="seu@email.com"
+            disabled={codeSent}
             value={email}
+            error={!!error ? error : undefined}
             onChange={(event) => setEmail(event.target.value)}
           />
 
-          {error && <p className="error-message">{error}</p>}
+          
 
           <div className="forgot-password-footer">
             <PrimaryButton type="submit" footer={backToLoginComponent}>

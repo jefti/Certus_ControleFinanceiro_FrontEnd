@@ -44,3 +44,9 @@
   font-size: 12px;
   color: #c0392b;
 }
+
+.text-field__input:disabled{
+  background: #f0f0f0;
+  border-color: #e0e0e0;
+  cursor: not-allowed;
+}
