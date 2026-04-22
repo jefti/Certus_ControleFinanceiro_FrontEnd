@@ -6,8 +6,9 @@ import "./RegisterPage.css";
 
 export function RegisterPage() {
 
-  const [email, setEmail] = useState("");
   const [nome, setNome] = useState("");
+  const [email, setEmail] = useState("");
+  const [telefone, setTelefone] = useState("");
   const [senha, setSenha] = useState("");
   const [confirmarSenha, setConfirmarSenha] = useState("");
    
@@ -16,6 +17,7 @@ export function RegisterPage() {
       console.log("Nome:", nome);
       console.log("Email:", email);
       console.log("Senha:", senha);
+      console.log("telefone:", telefone);
       console.log("Confirmar Senha:", confirmarSenha);
   }
 
@@ -49,6 +51,13 @@ export function RegisterPage() {
             placeholder="seu@email.com"
             value={email}
             onChange={(event) => setEmail(event.target.value)}
+          />
+          <TextField
+            label="Seu Telefone:"
+            type="number"
+            placeholder="9999-9999"
+            value={telefone}
+            onChange={(event) => setTelefone(event.target.value)}
           />
           <TextField
             label="Sua Senha:"

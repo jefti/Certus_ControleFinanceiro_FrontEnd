@@ -8,6 +8,8 @@ export function ForgotPasswordPage() {
   const navigate = useNavigate();
 
   const [email, setEmail] = useState("");
+  const [senha, setSenha] = useState("");
+  const [confirmarSenha, setConfirmarSenha] = useState("");
   const [error, setError] = useState("");
   const [codeSent, setCodeSent] = useState(false);
   const [secondsLeft, setSecondsLeft] = useState(60);
@@ -100,7 +102,20 @@ export function ForgotPasswordPage() {
             onChange={(event) => setEmail(event.target.value)}
           />
 
-          
+          <TextField
+            label="Nova senha:"
+            type="password"
+            placeholder="Mínimo 6 caracteres"
+            value={senha}
+            onChange={(event) => setSenha(event.target.value)}
+          />
+          <TextField
+            label="Confirmar Senha:"
+            type="password"
+            placeholder="Mínimo 6 caracteres"
+            value={confirmarSenha}
+            onChange={(event) => setConfirmarSenha(event.target.value)}
+          />
 
           <div className="forgot-password-footer">
             <PrimaryButton type="submit" footer={backToLoginComponent}>
