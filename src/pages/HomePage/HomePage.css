@@ -1,0 +1,128 @@
+/* Reset */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+/* Paleta */
+:root {
+    --bg-light: #F2F2F2;
+    --blue-dark: #1B2E40;
+    --beige: #A6785D;
+    --brown: #592E1E;
+    --black: #0D0D0D;
+}
+
+/* Geral */
+body {
+    font-family: Arial, sans-serif;
+    background-color: var(--bg-light);
+}
+
+/* Header */
+header {
+    background-color: white;
+    padding: 0px 0;
+    border-bottom: 1px solid #eee;
+}
+
+.container {
+    width: 90%;
+    margin: auto;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+/* LOGO AJUSTADA */
+.logo img {
+    margin-left: -130px;
+    width: 250px;
+    height: auto;
+}
+
+/* Menu */
+nav a {
+    margin-left: 25px;
+    text-decoration: none;
+    color: var(--blue-dark);
+    font-weight: 500;
+    transition: 0.3s;
+}
+
+nav a:hover {
+    color: var(--beige);
+}
+
+/* Hero */
+.hero {
+    height: 80vh;
+    background: linear-gradient(
+        to right,
+        var(--blue-dark),
+        rgba(27, 46, 64, 0.7)
+    ),
+    url("/finance.png") center/cover no-repeat;
+
+    display: flex;
+    align-items: center;
+    padding-left: 10%;
+    color: white;
+}
+
+.hero-text h2 {
+    font-size: 40px;
+    margin-bottom: 10px;
+}
+
+.hero-text p {
+    margin-bottom: 20px;
+}
+
+.hero-text button {
+    padding: 10px 20px;
+    border: none;
+    background-color: var(--beige);
+    color: white;
+    cursor: pointer;
+    border-radius: 5px;
+}
+
+/* Serviços */
+.servicos {
+    padding: 60px 10%;
+    text-align: center;
+}
+
+.servicos h2 {
+    margin-bottom: 40px;
+    color: var(--brown);
+}
+
+.cards {
+    display: flex;
+    gap: 20px;
+    justify-content: center;
+}
+
+.card {
+    background: white;
+    padding: 20px;
+    width: 250px;
+    border-radius: 10px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+}
+
+.card h3 {
+    margin-bottom: 10px;
+    color: var(--brown);
+}
+
+/* Footer */
+footer {
+    background-color: var(--blue-dark);
+    color: white;
+    text-align: center;
+    padding: 20px;
+}
