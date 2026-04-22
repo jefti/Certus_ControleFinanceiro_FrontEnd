@@ -1,0 +1,31 @@
+.primary-button-wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  gap: 10px;
+}
+
+.primary-button {
+  min-width: 250px;
+  height: 40px;
+  border: none;
+  border-radius: 8px;
+  background: #1b2e3f;
+  color: #ffffff;
+  font-weight: 600;
+  padding: 0 16px;
+}
+
+.primary-button--full {
+  width: 100%;
+}
+
+.primary-button:hover {
+  background: #24384d;
+}
+
+.primary-button__footer {
+  font-size: 13px;
+  color: #1f2937;
+}

@@ -1,0 +1,22 @@
+import axios from 'axios'
+
+export const apiCommunication = axios.create({
+  baseURL: import.meta.env.VITE_API_URL,
+  headers: {
+    'Content-Type': 'application/json',
+  },
+})
+
+apiCommunication.interceptors.request.use((config) => {
+  const authData = localStorage.getItem('@certus:auth')
+
+  if (authData) {
+    const session = JSON.parse(authData)
+
+    if (session.token) {
+      config.headers.Authorization = `Bearer ${session.token}`
+    }
+  }
+
+  return config
+})
