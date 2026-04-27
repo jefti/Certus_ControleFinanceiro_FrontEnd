@@ -3,11 +3,10 @@ import './header.css'
 
 export function PublicHeader() {
   return (
-    <header className="app-header">
+    <header className="app-header app-header--public">
       <div className="app-header__inner">
         <Link className="app-header__brand" to="/">
-          {/* <img className="app-header__logo" src={logo} alt="Certus" /> */}
-          Certus
+          <img className="app-header__logo" src="/logo-certus-resumed.png" alt="Certus" />
         </Link>
 
         <nav className="app-header__nav">
