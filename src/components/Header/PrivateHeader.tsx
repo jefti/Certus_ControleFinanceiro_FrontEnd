@@ -1,43 +1,88 @@
-import { Link, useNavigate } from 'react-router-dom'
-import { useAuth } from '../../hooks/useAuth'
-import './header.css'
+import { Link, useNavigate } from "react-router-dom";
+import { useAuth } from "../../hooks/useAuth";
+import "./header.css";
 
 export function PrivateHeader() {
-  const { user, signOut } = useAuth()
-  const navigate = useNavigate()
+  const { user, signOut } = useAuth();
+  const navigate = useNavigate();
 
   function handleLogout() {
-    signOut()
-    navigate('/login')
+    signOut();
+    navigate("/login");
   }
 
   return (
-    <header className="app-header">
+    <header className="app-header app-header--private">
       <div className="app-header__inner">
-        <nav className="app-header__nav">
+        <div className="app-header__nav-group">
           <Link className="app-header__brand" to="/inicio">
-            {/* <img className="app-header__logo" src={logo} alt="Certus" /> */}
-            Certus
+            <img
+              className="app-header__logo"
+              src="/logo-certus-resumed.png"
+              alt="Certus"
+            />
           </Link>
 
-          <Link className="app-header__link" to="/dashboard">
-            Dashboard
-          </Link>
-          <Link className="app-header__link" to="/usuario">
-            Usuário
-          </Link>
-          <Link className="app-header__link" to="/cadastros">
-            Cadastros
-          </Link>
-        </nav>
+          <nav className="app-header__nav">
+            <div className="app-header__dropdown">
+              <button
+                type="button"
+                className="app-header__link app-header__link--button"
+                aria-haspopup="true"
+              >
+                Cadastros
+                <span className="app-header__caret" aria-hidden="true">
+                  ▾
+                </span>
+              </button>
+
+              <div className="app-header__dropdown-menu">
+                <span className="app-header__dropdown-item app-header__dropdown-item--disabled">
+                  Centro de custo
+                </span>
+                <Link className="app-header__dropdown-item" to="/titulos">
+                  T{"\u00edtulos"}
+                </Link>
+              </div>
+            </div>
+
+            <Link className="app-header__link" to="/dashboard">
+              Dashboard
+            </Link>
+          </nav>
+        </div>
 
         <div className="app-header__actions">
-          <span className="app-header__user">{user?.nome}</span>
-          <button className="app-header__button" onClick={handleLogout}>
-            Sair
-          </button>
+          <div className="app-header__profile" tabIndex={0}>
+            <div className="app-header__avatar" aria-hidden="true">
+              {user?.nome?.charAt(0).toUpperCase() ?? "U"}
+            </div>
+
+            <div className="app-header__profile-copy">
+              <span className="app-header__profile-label">
+                Usu{"\u00e1"}rio conectado
+              </span>
+              <span className="app-header__user">
+                {user?.nome ?? `Usu${"\u00e1"}rio`}
+              </span>
+            </div>
+
+            <div className="app-header__profile-menu">
+              <Link className="app-header__dropdown-item" to="/usuario">
+                Meu perfil
+              </Link>
+
+              <button
+                type="button"
+                className="app-header__dropdown-item app-header__dropdown-item--danger"
+                onClick={handleLogout}
+              >
+                Sair
+              </button>
+            </div>
+          </div>
         </div>
       </div>
     </header>
-  )
+  );
 }
