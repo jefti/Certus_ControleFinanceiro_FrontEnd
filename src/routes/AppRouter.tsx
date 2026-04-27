@@ -29,8 +29,6 @@ export function AppRouter() {
         <Route element={<PrivateLayout />}>
           <Route path="/inicio" element={<AuthenticatedLandingPage />} />
           <Route path="/dashboard" element={<DashboardPage />} />
-          <Route path="/costcenterpage" element={<CostCenterPage />} />
-          <Route path="/centro-de-custos" element={<CostCenterPage />} />
         </Route>
       </Route>
 
