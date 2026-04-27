@@ -3,6 +3,7 @@
   background: #0f172a;
   color: #f8fafc;
   padding: 48px 24px 80px;
+    border-radius: 20px;
 }
 
 .authenticated-landing-page__hero {
@@ -68,6 +69,7 @@
 }
 
 .authenticated-landing-page__card {
+  position: relative;
   min-height: 210px;
   background: #ffffff;
   color: #0f172a;
@@ -114,6 +116,9 @@
 }
 
 .authenticated-landing-page__card-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   width: fit-content;
   margin-top: 22px;
   padding: 10px 14px;
@@ -121,6 +126,34 @@
   background: #0f172a;
   color: #ffffff;
   font-weight: 700;
+}
+
+.authenticated-landing-page__card--disabled {
+  border-color: rgba(203, 213, 225, 0.9);
+  background: linear-gradient(180deg, #f8fafc 0%, #eef2f7 100%);
+}
+
+.authenticated-landing-page__card--disabled:hover {
+  transform: none;
+  border-color: rgba(203, 213, 225, 0.9);
+  box-shadow: none;
+}
+
+.authenticated-landing-page__card-overlay {
+  position: absolute;
+  top: 18px;
+  right: 18px;
+  padding: 5px 10px;
+  border-radius: 999px;
+  background: rgba(15, 23, 42, 0.08);
+  color: #475569;
+  font-size: 0.72rem;
+  font-weight: 700;
+}
+
+.authenticated-landing-page__card-button--disabled {
+  background: #cbd5e1;
+  color: #475569;
 }
 
 .authenticated-landing-page__info {
