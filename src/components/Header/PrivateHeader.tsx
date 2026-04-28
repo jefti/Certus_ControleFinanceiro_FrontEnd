@@ -1,5 +1,6 @@
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../../hooks/useAuth";
+import { getUserInitial, getUserNickname } from "../../utils/userDisplay";
 import "./header.css";
 
 export function PrivateHeader() {
@@ -31,9 +32,7 @@ export function PrivateHeader() {
                 aria-haspopup="true"
               >
                 Cadastros
-                <span className="app-header__caret" aria-hidden="true">
-                  ▾
-                </span>
+                <span className="app-header__caret" aria-hidden="true">▾</span>
               </button>
 
               <div className="app-header__dropdown-menu">
@@ -41,7 +40,7 @@ export function PrivateHeader() {
                   Centro de custo
                 </span>
                 <Link className="app-header__dropdown-item" to="/titulos">
-                  T{"\u00edtulos"}
+                  Títulos
                 </Link>
               </div>
             </div>
@@ -55,15 +54,15 @@ export function PrivateHeader() {
         <div className="app-header__actions">
           <div className="app-header__profile" tabIndex={0}>
             <div className="app-header__avatar" aria-hidden="true">
-              {user?.nome?.charAt(0).toUpperCase() ?? "U"}
+              {getUserInitial(user?.nome)}
             </div>
 
             <div className="app-header__profile-copy">
               <span className="app-header__profile-label">
-                Usu{"\u00e1"}rio conectado
+                Usuário conectado
               </span>
               <span className="app-header__user">
-                {user?.nome ?? `Usu${"\u00e1"}rio`}
+                {getUserNickname(user?.nome)}
               </span>
             </div>
 

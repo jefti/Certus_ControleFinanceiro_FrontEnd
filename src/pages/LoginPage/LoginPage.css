@@ -7,3 +7,25 @@
   justify-content: center;
   gap: 0 4px;
 }
+
+.login-form {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.login-form-message {
+  width: 100%;
+  max-width: 490px;
+  margin-top: 8px;
+  font-size: 13px;
+}
+
+.login-form-message--error {
+  color: #c0392b;
+}
+
+.login-form-message--success {
+  color: #1f7a3d;
+}

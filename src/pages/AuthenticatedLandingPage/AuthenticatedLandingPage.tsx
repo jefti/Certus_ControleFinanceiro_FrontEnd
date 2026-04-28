@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom'
 import { useAuth } from '../../hooks/useAuth'
+import { getUserNickname } from '../../utils/userDisplay'
 import { shortcuts } from './HomeShortCut'
 import './AuthenticatedLandingPage.css'
 
@@ -15,7 +16,7 @@ export function AuthenticatedLandingPage() {
           </span>
 
           <h1 className="authenticated-landing-page__title">
-            Ol{"\u00e1"}, {user?.nome || `usu${"\u00e1"}rio`}.
+            Ol{"\u00e1"}, {getUserNickname(user?.nome)}.
           </h1>
 
           <p className="authenticated-landing-page__text">
