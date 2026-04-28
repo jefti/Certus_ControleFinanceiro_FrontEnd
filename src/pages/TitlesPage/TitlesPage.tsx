@@ -1,50 +1,45 @@
-import { Link } from 'react-router-dom'
 import './TitlesPage.css'
 
 export function TitlesPage() {
   return (
-    <main className="construction-page">
-      <section className="construction-page__panel">
-        <div className="construction-page__content">
-          <span className="construction-page__eyebrow">
-            M{"\u00f3"}dulo em constru{"\u00e7"}{"\u00e3"}o
-          </span>
-          <h1 className="construction-page__title">T{"\u00edtulos"}</h1>
-          <p className="construction-page__description">
-            Esta {"\u00e1"}rea foi reservada para o gerenciamento de t
-            {"\u00edtulos"} financeiros. A rota j{"\u00e1"} est{"\u00e1"} pronta,
-            e a tela fica organizada enquanto a estrutura funcional definitiva
-            {"\u00e9"} desenhada.
-          </p>
+   <><main className="main">
 
-          <div className="construction-page__actions">
-            <Link className="construction-page__button" to="/inicio">
-              Voltar ao in{"\u00ed"}cio
-            </Link>
-            <Link
-              className="construction-page__button construction-page__button--secondary"
-              to="/dashboard"
-            >
-              Ir para o dashboard
-            </Link>
-          </div>
-        </div>
+    <h1>Cadastro de Título</h1>
 
-        <div className="construction-page__visual" aria-hidden="true">
-          <div className="construction-page__glow construction-page__glow--gold" />
-          <div className="construction-page__glow construction-page__glow--green" />
-          <div className="construction-page__image-frame">
-            <img
-              src="/logo-certus-resumed.png"
-              alt=""
-              className="construction-page__image"
-            />
-          </div>
-          <div className="construction-page__badge">
-            Em constru{"\u00e7"}{"\u00e3"}o
-          </div>
-        </div>
-      </section>
-    </main>
+    <form id="form">
+        <input type="text" id="descricao" placeholder="Descrição" required/>
+        <input type="number" id="valor" placeholder="Valor" required/>
+
+        <select id="tipo">
+            <option value="Pagar">Pagar</option>
+            <option value="Receber">Receber</option>
+        </select>
+
+        <input type="text" id="categoria" placeholder="Categoria"/>
+        <input type="text" id="centro_custo" placeholder="Centro de Custo"/>
+        <input type="date" id="data_vencimento"/>
+
+        <button type="submit">Salvar</button>
+    </form>
+
+    <h2>Seus Registros</h2>
+
+    <table>
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Descrição</th>
+                <th>Valor</th>
+                <th>Tipo</th>
+                <th>Categoria</th>
+                <th>Centro de Custo</th>
+                <th>Vencimento</th>
+                <th>Ação</th>
+            </tr>
+        </thead>
+        <tbody id="tabela"></tbody>
+    </table>
+
+</main></>
   )
 }
