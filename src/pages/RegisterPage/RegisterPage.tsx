@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { FloatingAlert } from "../../components/FloatingAlert/FloatingAlert";
 import { PrimaryButton } from "../../components/PrimaryButton/PrimaryButton";
@@ -12,6 +12,15 @@ import "./RegisterPage.css";
 
 export function RegisterPage() {
   const navigate = useNavigate();
+  const redirectTimeoutRef = useRef<number | null>(null);
+
+  useEffect(() => {
+    return () => {
+      if (redirectTimeoutRef.current) {
+        window.clearTimeout(redirectTimeoutRef.current);
+      }
+    };
+  }, []);
 
   function normalizeEmail(value: string) {
     return value.trim().toLowerCase();
@@ -63,7 +72,7 @@ export function RegisterPage() {
 
       setSuccessMessage("Cadastro realizado com sucesso. Voce ja pode fazer login.");
 
-      setTimeout(() => {
+      redirectTimeoutRef.current = window.setTimeout(() => {
         navigate("/login");
       }, 1200);
     } catch (error) {

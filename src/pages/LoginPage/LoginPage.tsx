@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { FloatingAlert } from "../../components/FloatingAlert/FloatingAlert";
 import { PrimaryButton } from "../../components/PrimaryButton/PrimaryButton";
@@ -20,6 +20,15 @@ export function LoginPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [fieldErrors, setFieldErrors] = useState<ValidationErrors<keyof SignInFormData>>({});
   const [alertMessage, setAlertMessage] = useState("");
+
+  useEffect(() => {
+    const rememberedEmail = localStorage.getItem("@certus:remember-email");
+
+    if (rememberedEmail) {
+      setEmail(rememberedEmail);
+      setLembrar(true);
+    }
+  }, []);
 
   function normalizeEmail(value: string) {
     return value.trim().toLowerCase();
