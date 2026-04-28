@@ -1,11 +1,11 @@
 .user-page {
-  min-height: calc(100vh - 72px);
+  min-height: calc(100vh - var(--header-offset));
   padding: 40px 24px 72px;
 }
 
 .user-page__hero,
 .user-page__grid {
-  width: min(1120px, 100%);
+  width: var(--page-content-width);
   margin: 0 auto;
 }
 
@@ -39,7 +39,7 @@
   flex-shrink: 0;
   border-radius: 50%;
   background: linear-gradient(135deg, #1b2e3f 0%, #426888 100%);
-  color: #ffffff;
+  color: var(--color-surface);
   font-size: 1.9rem;
   font-weight: 700;
 }
@@ -56,7 +56,7 @@
 
 .user-page__title {
   margin: 10px 0 0;
-  color: #14212c;
+  color: var(--color-primary-strong);
   font-size: clamp(2rem, 3vw, 3rem);
 }
 
@@ -75,7 +75,7 @@
 .user-page__info-card strong {
   display: block;
   margin-top: 10px;
-  color: #14212c;
+  color: var(--color-primary-strong);
   font-size: 1.24rem;
 }
 

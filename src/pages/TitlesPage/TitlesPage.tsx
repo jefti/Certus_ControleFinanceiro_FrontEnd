@@ -2,44 +2,96 @@ import './TitlesPage.css'
 
 export function TitlesPage() {
   return (
-   <><main className="main">
+    <main className="titles-page">
+      <section className="titles-page__main">
+        <header className="titles-page__header">
+          <span className="titles-page__eyebrow">Controle financeiro</span>
+          <h1 className="titles-page__title">Cadastro de Titulos</h1>
+          <p className="titles-page__description">
+            Cadastre contas a pagar e a receber com uma interface organizada e
+            alinhada ao restante do sistema.
+          </p>
+        </header>
 
-    <h1>Cadastro de Título</h1>
+        <section className="titles-page__card">
+          <form className="titles-page__form" id="form">
+            <input
+              className="titles-page__input titles-page__input--wide"
+              type="text"
+              id="descricao"
+              placeholder="Descricao"
+              required
+            />
 
-    <form id="form">
-        <input type="text" id="descricao" placeholder="Descrição" required/>
-        <input type="number" id="valor" placeholder="Valor" required/>
+            <input
+              className="titles-page__input"
+              type="number"
+              id="valor"
+              placeholder="Valor"
+              required
+            />
 
-        <select id="tipo">
-            <option value="Pagar">Pagar</option>
-            <option value="Receber">Receber</option>
-        </select>
+            <select className="titles-page__input" id="tipo" defaultValue="Pagar">
+              <option value="Pagar">Pagar</option>
+              <option value="Receber">Receber</option>
+            </select>
 
-        <input type="text" id="categoria" placeholder="Categoria"/>
-        <input type="text" id="centro_custo" placeholder="Centro de Custo"/>
-        <input type="date" id="data_vencimento"/>
+            <input
+              className="titles-page__input"
+              type="text"
+              id="categoria"
+              placeholder="Categoria"
+            />
 
-        <button type="submit">Salvar</button>
-    </form>
+            <input
+              className="titles-page__input"
+              type="text"
+              id="centro_custo"
+              placeholder="Centro de Custo"
+            />
 
-    <h2>Seus Registros</h2>
+            <input
+              className="titles-page__input"
+              type="date"
+              id="data_vencimento"
+            />
 
-    <table>
-        <thead>
-            <tr>
-                <th>ID</th>
-                <th>Descrição</th>
-                <th>Valor</th>
-                <th>Tipo</th>
-                <th>Categoria</th>
-                <th>Centro de Custo</th>
-                <th>Vencimento</th>
-                <th>Ação</th>
-            </tr>
-        </thead>
-        <tbody id="tabela"></tbody>
-    </table>
+            <button className="titles-page__button" type="submit">
+              Salvar
+            </button>
+          </form>
+        </section>
 
-</main></>
+        <section className="titles-page__card titles-page__card--table">
+          <div className="titles-page__table-header">
+            <h2 className="titles-page__table-title">Seus Registros</h2>
+          </div>
+
+          <div className="titles-page__table-wrap">
+            <table className="titles-page__table">
+              <thead>
+                <tr>
+                  <th>ID</th>
+                  <th>Descricao</th>
+                  <th>Valor</th>
+                  <th>Tipo</th>
+                  <th>Categoria</th>
+                  <th>Centro de Custo</th>
+                  <th>Vencimento</th>
+                  <th>Acao</th>
+                </tr>
+              </thead>
+              <tbody id="tabela">
+                <tr>
+                  <td colSpan={8} className="titles-page__empty">
+                    Nenhum registro cadastrado ainda.
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+      </section>
+    </main>
   )
 }

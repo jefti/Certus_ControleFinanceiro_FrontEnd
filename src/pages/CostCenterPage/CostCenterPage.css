@@ -6,7 +6,7 @@
   background:
     radial-gradient(circle at top left, rgba(56, 189, 248, 0.24), transparent 34%),
     radial-gradient(circle at bottom right, rgba(47, 74, 99, 0.32), transparent 34%),
-    linear-gradient(135deg, #0f172a 0%, #1e293b 48%, #2f4a63 100%);
+    linear-gradient(135deg, var(--color-primary-dark) 0%, #1e293b 48%, var(--color-primary-mid) 100%);
   padding: 34px 28px 56px;
 }
 
@@ -37,7 +37,7 @@
 .cost-center-container {
   position: relative;
   z-index: 1;
-  width: min(1380px, 100%);
+  width: var(--page-content-wide);
   margin: 0 auto;
 }
 
@@ -75,7 +75,7 @@
 
 .cost-center-title {
   margin: 0;
-  color: #f8fafc;
+  color: var(--color-surface-soft);
   font-size: clamp(32px, 5vw, 56px);
   font-weight: 800;
   line-height: 1;
@@ -84,7 +84,7 @@
 .cost-center-description {
   max-width: 820px;
   margin: 18px 0 0;
-  color: #cbd5e1;
+  color: var(--color-border-muted);
   font-size: 17px;
   line-height: 1.7;
 }
@@ -133,7 +133,7 @@
 
 .cost-center-summary-item span {
   font-size: 13px;
-  color: #475569;
+  color: var(--color-text-soft);
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.04em;
@@ -141,12 +141,12 @@
 
 .cost-center-summary-item strong {
   font-size: 30px;
-  color: #0f172a;
+  color: var(--color-text-heading);
   line-height: 1.1;
 }
 
 .cost-center-summary-item small {
-  color: #64748b;
+  color: var(--color-text-subtle);
   font-size: 13px;
   line-height: 1.4;
 }
@@ -175,7 +175,7 @@
 .cost-center-section-heading span {
   display: inline-flex;
   margin-bottom: 10px;
-  color: #0369a1;
+  color: var(--color-info-strong);
   font-size: 12px;
   font-weight: 800;
   letter-spacing: 0.06em;
@@ -184,7 +184,7 @@
 
 .cost-center-section-heading h3 {
   margin: 0;
-  color: #0f172a;
+  color: var(--color-text-heading);
   font-size: 26px;
   line-height: 1.2;
 }
@@ -192,7 +192,7 @@
 .cost-center-section-heading p {
   max-width: 680px;
   margin: 8px 0 0;
-  color: #64748b;
+  color: var(--color-text-subtle);
   line-height: 1.6;
 }
 
@@ -216,16 +216,16 @@
 .cost-center-label {
   font-size: 14px;
   font-weight: 700;
-  color: #0f172a;
+  color: var(--color-text-heading);
 }
 
 .cost-center-select {
   width: 100%;
   height: 44px;
-  border: 1px solid #cbd5e1;
+  border: 1px solid var(--color-border-muted);
   border-radius: 12px;
-  background: #ffffff;
-  color: #0f172a;
+  background: var(--color-surface);
+  color: var(--color-text-heading);
   font-size: 14px;
   padding: 0 12px;
   outline: none;
