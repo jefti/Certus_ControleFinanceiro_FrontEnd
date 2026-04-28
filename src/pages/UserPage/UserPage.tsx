@@ -1,4 +1,5 @@
 import { useAuth } from '../../hooks/useAuth'
+import { getUserInitial, getUserNickname } from '../../utils/userDisplay'
 import './UserPage.css'
 
 export function UserPage() {
@@ -9,7 +10,7 @@ export function UserPage() {
       <section className="user-page__hero">
         <div className="user-page__identity">
           <div className="user-page__avatar" aria-hidden="true">
-            {user?.nome?.charAt(0).toUpperCase() ?? 'U'}
+            {getUserInitial(user?.nome)}
           </div>
 
           <div>
@@ -17,7 +18,7 @@ export function UserPage() {
               Conta do usu{"\u00e1"}rio
             </span>
             <h1 className="user-page__title">
-              {user?.nome ?? `Usu${"\u00e1"}rio`}
+              {getUserNickname(user?.nome)}
             </h1>
             <p className="user-page__text">
               Esta {"\u00e1"}rea centraliza os dados principais da conta e fica
@@ -42,7 +43,7 @@ export function UserPage() {
 
       <section className="user-page__grid">
         <article className="user-page__info-card">
-          <span className="user-page__label">Nome</span>
+          <span className="user-page__label">Nome completo</span>
           <strong>{user?.nome ?? `N${"\u00e3"}o informado`}</strong>
         </article>
 
