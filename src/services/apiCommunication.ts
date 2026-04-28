@@ -11,10 +11,14 @@ apiCommunication.interceptors.request.use((config) => {
   const authData = localStorage.getItem('@certus:auth')
 
   if (authData) {
-    const session = JSON.parse(authData)
+    try {
+      const session = JSON.parse(authData)
 
-    if (session.token) {
-      config.headers.Authorization = `Bearer ${session.token}`
+      if (session.token) {
+        config.headers.Authorization = `Bearer ${session.token}`
+      }
+    } catch {
+      localStorage.removeItem('@certus:auth')
     }
   }
 
