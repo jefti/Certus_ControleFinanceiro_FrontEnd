@@ -2,6 +2,9 @@ export interface AuthUser {
   id: number
   nome: string
   email: string
+  celular?: string
+  dataCadastro?: string
+  dataInativacao?: string | null
 }
 
 export interface AuthSession {
@@ -17,6 +20,20 @@ export interface SignInPayload {
 export interface SignInResponse {
   token: string
   usuario: AuthUser
+}
+
+export interface ForgotPasswordPayload {
+  email: string
+}
+
+export interface ResetPasswordPayload {
+  email: string
+  codigo: string
+  novaSenha: string
+}
+
+export interface MessageResponse {
+  message: string
 }
 
 export interface AuthContextData {

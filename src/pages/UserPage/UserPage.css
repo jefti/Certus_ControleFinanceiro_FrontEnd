@@ -1,0 +1,115 @@
+.user-page {
+  min-height: calc(100vh - var(--header-offset));
+  padding: 40px 24px 72px;
+}
+
+.user-page__hero,
+.user-page__grid {
+  width: var(--page-content-width);
+  margin: 0 auto;
+}
+
+.user-page__hero {
+  display: grid;
+  grid-template-columns: minmax(0, 1.2fr) minmax(260px, 340px);
+  gap: 24px;
+  align-items: stretch;
+}
+
+.user-page__identity,
+.user-page__card,
+.user-page__info-card {
+  border-radius: 24px;
+  background: rgba(255, 255, 255, 0.94);
+  box-shadow: 0 22px 44px rgba(15, 23, 42, 0.14);
+}
+
+.user-page__identity {
+  display: flex;
+  align-items: center;
+  gap: 22px;
+  padding: 30px;
+}
+
+.user-page__avatar {
+  display: grid;
+  place-items: center;
+  width: 84px;
+  height: 84px;
+  flex-shrink: 0;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #1b2e3f 0%, #426888 100%);
+  color: var(--color-surface);
+  font-size: 1.9rem;
+  font-weight: 700;
+}
+
+.user-page__eyebrow,
+.user-page__label {
+  display: inline-block;
+  color: #5f7388;
+  font-size: 0.76rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.user-page__title {
+  margin: 10px 0 0;
+  color: var(--color-primary-strong);
+  font-size: clamp(2rem, 3vw, 3rem);
+}
+
+.user-page__text,
+.user-page__card p {
+  margin: 14px 0 0;
+  color: #516678;
+  line-height: 1.7;
+}
+
+.user-page__card {
+  padding: 28px;
+}
+
+.user-page__card strong,
+.user-page__info-card strong {
+  display: block;
+  margin-top: 10px;
+  color: var(--color-primary-strong);
+  font-size: 1.24rem;
+}
+
+.user-page__grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 18px;
+  margin-top: 26px;
+}
+
+.user-page__info-card {
+  padding: 24px;
+}
+
+@media (max-width: 900px) {
+  .user-page__hero,
+  .user-page__grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 640px) {
+  .user-page {
+    padding: 28px 16px 56px;
+  }
+
+  .user-page__identity,
+  .user-page__card,
+  .user-page__info-card {
+    padding: 22px;
+  }
+
+  .user-page__identity {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}

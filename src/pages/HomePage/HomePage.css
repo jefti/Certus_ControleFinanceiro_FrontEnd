@@ -3,6 +3,7 @@
   flex-direction: column;
   gap: 28px;
   color: var(--color-text-secondary);
+  margin-top: 20px;
 }
 
 .home-hero {
