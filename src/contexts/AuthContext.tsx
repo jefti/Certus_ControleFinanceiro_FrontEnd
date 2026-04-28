@@ -18,6 +18,10 @@ interface AuthProviderProps {
 
 export const AuthContext = createContext({} as AuthContextData);
 
+function normalizeToken(token: string) {
+  return token.replace(/^Bearer\s+/i, "");
+}
+
 export function AuthProvider({ children }: AuthProviderProps) {
   const [user, setUser] = useState<AuthUser | null>(null);
   const [token, setToken] = useState<string | null>(null);
@@ -35,7 +39,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
     const response = await signInRequest(data);
 
     const session: AuthSession = {
-      token: response.token,
+      token: normalizeToken(response.token),
       user: response.usuario,
     };
 

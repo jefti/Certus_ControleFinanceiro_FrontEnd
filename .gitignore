@@ -24,3 +24,7 @@ dist-ssr
 *.sw?
 
 .env
+
+# Local assistant/editor config not meant for the project repository
+.editorconfig
+.gitattributes
