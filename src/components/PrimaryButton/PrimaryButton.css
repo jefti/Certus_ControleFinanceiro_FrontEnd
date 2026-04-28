@@ -10,9 +10,9 @@
   min-width: 250px;
   height: 40px;
   border: none;
-  border-radius: 8px;
-  background: #1b2e3f;
-  color: #ffffff;
+  border-radius: var(--radius-sm);
+  background: var(--color-primary);
+  color: var(--color-surface);
   font-weight: 600;
   padding: 0 16px;
 }
@@ -27,5 +27,5 @@
 
 .primary-button__footer {
   font-size: 13px;
-  color: #1f2937;
+  color: var(--color-text);
 }
