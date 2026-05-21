@@ -36,9 +36,9 @@ export function PrivateHeader() {
               </button>
 
               <div className="app-header__dropdown-menu">
-                <span className="app-header__dropdown-item app-header__dropdown-item--disabled">
+                <Link className="app-header__dropdown-item" to="/centro-de-custos">
                   Centro de custo
-                </span>
+                </Link>
                 <Link className="app-header__dropdown-item" to="/titulos">
                   Títulos
                 </Link>
