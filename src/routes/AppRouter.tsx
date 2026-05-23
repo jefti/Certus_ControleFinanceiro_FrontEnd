@@ -11,9 +11,9 @@ import { AuthenticatedLandingPage } from '../pages/AuthenticatedLandingPage/Auth
 import { DashboardPage } from '../pages/DashboardPage/DashboardPage'
 import { TitlesPage } from '../pages/TitlesPage/TitlesPage'
 import { UserPage } from '../pages/UserPage/UserPage'
+import { CostCenterPage } from '../pages/CostCenterPage/CostCenterPage'
 import { NotFoundPage } from '../pages/NotFoundPage/NotFoundPage'
 import { NotFoundLayout } from '../layouts/NotFoundLayout'
-import { CostCenterPage } from '../pages/CostCenterPage/CostCenterPage'
 
 export function AppRouter() {
   return (
