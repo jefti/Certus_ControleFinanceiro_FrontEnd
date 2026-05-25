@@ -1,194 +1,240 @@
-import { useState } from "react";
-import "./CostCenterPage.css";
-import { TextField } from "../../components/TextField/TextField";
+import { useEffect, useState } from "react";
+import { FloatingAlert } from "../../components/FloatingAlert/FloatingAlert";
 import { PrimaryButton } from "../../components/PrimaryButton/PrimaryButton";
-
-type ExpenseType = "recorrente" | "nao-recorrente";
-
-type Expense = {
-  id: number;
-  description: string;
-  value: number;
-  date: string;
-  type: ExpenseType;
-  periodicity?: string;
-  source: string;
-};
-
-const availableSources = [
-  "Marketing",
-  "Infraestrutura",
-  "Equipe",
-  "Ferramentas",
-  "Operacional",
-];
+import { TextField } from "../../components/TextField/TextField";
+import {
+  createCostCenter,
+  deleteCostCenter,
+  getCostCenters,
+  updateCostCenter,
+} from "../../services/costCenterService";
+import { getApiErrorMessage } from "../../services/httpError";
+import type { CostCenter } from "../../types/CostCenter";
+import "./CostCenterPage.css";
 
 export function CostCenterPage() {
-  const [expenses, setExpenses] = useState<Expense[]>([]);
-  const [editingExpenseId, setEditingExpenseId] = useState<number | null>(null);
-
-  const [description, setDescription] = useState("");
-  const [value, setValue] = useState("");
-  const [date, setDate] = useState("");
-  const [type, setType] = useState<ExpenseType>("recorrente");
-  const [periodicity, setPeriodicity] = useState("");
-  const [source, setSource] = useState("");
-
-  const [error, setError] = useState("");
+  const [costCenters, setCostCenters] = useState<CostCenter[]>([]);
+  const [editingCostCenterId, setEditingCostCenterId] = useState<number | null>(
+    null
+  );
+  const [descricao, setDescricao] = useState("");
+  const [observacao, setObservacao] = useState("");
+  const [isLoading, setIsLoading] = useState(true);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [pendingDeleteId, setPendingDeleteId] = useState<number | null>(null);
   const [successMessage, setSuccessMessage] = useState("");
-  const [loading, setLoading] = useState(false);
+  const [alertMessage, setAlertMessage] = useState("");
+
+  const isBusy = isLoading || isSubmitting || pendingDeleteId !== null;
+
+  useEffect(() => {
+    void loadCostCenters();
+  }, []);
+
+  async function loadCostCenters() {
+    try {
+      setIsLoading(true);
+      const data = await getCostCenters();
+      setCostCenters(data);
+    } catch (error) {
+      setAlertMessage(
+        getApiErrorMessage(
+          error,
+          "Nao foi possivel carregar os centros de custo."
+        )
+      );
+    } finally {
+      setIsLoading(false);
+    }
+  }
 
   function resetForm() {
-    setDescription("");
-    setValue("");
-    setDate("");
-    setType("recorrente");
-    setPeriodicity("");
-    setSource("");
-    setEditingExpenseId(null);
-    setError("");
+    setDescricao("");
+    setObservacao("");
+    setEditingCostCenterId(null);
   }
 
   function validateForm() {
-    if (!description.trim()) {
-      return "Informe a descrição do gasto.";
+    const normalizedDescription = descricao.trim();
+
+    if (!normalizedDescription) {
+      return "Informe a descricao do centro de custo.";
     }
 
-    if (!value || Number(value) <= 0) {
-      return "Informe um valor válido para o gasto.";
+    if (normalizedDescription.length > 255) {
+      return "A descricao deve ter no maximo 255 caracteres.";
     }
 
-    if (!date) {
-      return "Informe a data do gasto.";
+    if (observacao.trim().length > 500) {
+      return "A observacao deve ter no maximo 500 caracteres.";
     }
 
-    if (!source) {
-      return "Selecione um centro de custo.";
-    }
+    const duplicatedCostCenter = costCenters.some((costCenter) => {
+      const sameDescription =
+        costCenter.descricao.trim().toLowerCase() ===
+        normalizedDescription.toLowerCase();
 
-    if (type === "recorrente" && !periodicity) {
-      return "Selecione a periodicidade do gasto recorrente.";
+      if (!sameDescription) {
+        return false;
+      }
+
+      if (editingCostCenterId === null) {
+        return true;
+      }
+
+      return costCenter.id !== editingCostCenterId;
+    });
+
+    if (duplicatedCostCenter) {
+      return "Já existe um centro de custo com essa descrição.";
     }
 
     return "";
   }
 
-  function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
+  async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
 
     const validationError = validateForm();
 
     if (validationError) {
-      setError(validationError);
       setSuccessMessage("");
+      setAlertMessage(validationError);
       return;
     }
 
-    setLoading(true);
-    setError("");
+    try {
+      setIsSubmitting(true);
+      setSuccessMessage("");
 
-    const expenseData: Expense = {
-      id: editingExpenseId ?? Date.now(),
-      description: description.trim(),
-      value: Number(value),
-      date,
-      type,
-      periodicity: type === "recorrente" ? periodicity : undefined,
-      source,
-    };
+      const payload = {
+        descricao: descricao.trim(),
+        observacao: observacao.trim(),
+      };
 
-    setTimeout(() => {
-      if (editingExpenseId) {
-        setExpenses((currentExpenses) =>
-          currentExpenses.map((expense) =>
-            expense.id === editingExpenseId ? expenseData : expense
+      if (editingCostCenterId !== null) {
+        const updatedCostCenter = await updateCostCenter(
+          editingCostCenterId,
+          payload
+        );
+
+        setCostCenters((currentCostCenters) =>
+          currentCostCenters.map((costCenter) =>
+            costCenter.id === editingCostCenterId
+              ? updatedCostCenter
+              : costCenter
           )
         );
 
-        setSuccessMessage("Gasto atualizado com sucesso.");
+        setSuccessMessage("Centro de custo atualizado com sucesso.");
       } else {
-        setExpenses((currentExpenses) => [...currentExpenses, expenseData]);
-        setSuccessMessage("Gasto cadastrado com sucesso.");
+        const createdCostCenter = await createCostCenter(payload);
+
+        setCostCenters((currentCostCenters) => [
+          ...currentCostCenters,
+          createdCostCenter,
+        ]);
+
+        setSuccessMessage("Centro de custo cadastrado com sucesso.");
       }
 
-      setLoading(false);
       resetForm();
-    }, 500);
+    } catch (error) {
+      setSuccessMessage("");
+      setAlertMessage(
+        getApiErrorMessage(
+          error,
+          "Nao foi possivel salvar o centro de custo."
+        )
+      );
+    } finally {
+      setIsSubmitting(false);
+    }
   }
 
-  function handleEdit(expense: Expense) {
-    setEditingExpenseId(expense.id);
-    setDescription(expense.description);
-    setValue(String(expense.value));
-    setDate(expense.date);
-    setType(expense.type);
-    setPeriodicity(expense.periodicity ?? "");
-    setSource(expense.source);
-    setError("");
+  function handleEdit(costCenter: CostCenter) {
+    if (isBusy) return;
+
+    setEditingCostCenterId(costCenter.id);
+    setDescricao(costCenter.descricao);
+    setObservacao(costCenter.observacao);
     setSuccessMessage("");
   }
 
-  function handleDelete(expenseId: number) {
+  async function handleDelete(costCenterId: number) {
+    if (isBusy) return;
+
     const confirmDelete = window.confirm(
-      "Tem certeza que deseja excluir este gasto?"
+      "Tem certeza que deseja excluir este centro de custo?"
     );
 
     if (!confirmDelete) return;
 
-    setExpenses((currentExpenses) =>
-      currentExpenses.filter((expense) => expense.id !== expenseId)
-    );
+    try {
+      setPendingDeleteId(costCenterId);
+      await deleteCostCenter(costCenterId);
 
-    if (editingExpenseId === expenseId) {
-      resetForm();
+      setCostCenters((currentCostCenters) =>
+        currentCostCenters.filter((costCenter) => costCenter.id !== costCenterId)
+      );
+
+      if (editingCostCenterId === costCenterId) {
+        resetForm();
+      }
+
+      setSuccessMessage("Centro de custo excluido com sucesso.");
+    } catch (error) {
+      setSuccessMessage("");
+      setAlertMessage(
+        getApiErrorMessage(
+          error,
+          "Nao foi possivel excluir o centro de custo."
+        )
+      );
+    } finally {
+      setPendingDeleteId(null);
+    }
+  }
+
+  function getBusyMessage() {
+    if (isLoading) {
+      return "Carregando centros de custo...";
     }
 
-    setSuccessMessage("Gasto excluído com sucesso.");
-    setError("");
+    if (pendingDeleteId !== null) {
+      return "Excluindo centro de custo...";
+    }
+
+    if (editingCostCenterId !== null) {
+      return "Salvando alteracoes...";
+    }
+
+    return "Cadastrando centro de custo...";
   }
-
-  function formatCurrency(value: number) {
-    return value.toLocaleString("pt-BR", {
-      style: "currency",
-      currency: "BRL",
-    });
-  }
-
-  function formatDate(date: string) {
-    if (!date) return "-";
-
-    return new Date(`${date}T00:00:00`).toLocaleDateString("pt-BR");
-  }
-
-  const totalExpenses = expenses.reduce(
-    (total, expense) => total + expense.value,
-    0
-  );
-
-  const recurringExpenses = expenses.filter(
-    (expense) => expense.type === "recorrente"
-  ).length;
-
-  const nonRecurringExpenses = expenses.filter(
-    (expense) => expense.type === "nao-recorrente"
-  ).length;
 
   return (
     <section className="cost-center-page">
+      <FloatingAlert
+        isOpen={Boolean(alertMessage)}
+        title="Não foi possível concluir à operação"
+        message={alertMessage}
+        onClose={() => setAlertMessage("")}
+      />
+
       <div className="cost-center-background-detail cost-center-background-detail-left" />
       <div className="cost-center-background-detail cost-center-background-detail-right" />
 
       <div className="cost-center-container">
         <header className="cost-center-header">
           <div className="cost-center-header-content">
-            <span className="cost-center-eyebrow">Gestão financeira</span>
+            <span className="cost-center-eyebrow">Gestao financeira</span>
 
             <h2 className="cost-center-title">Centro de Custos</h2>
 
             <p className="cost-center-description">
-              Organize seus gastos por centro de custo, acompanhe despesas
-              recorrentes e não recorrentes e mantenha seus lançamentos
-              financeiros mais claros.
+              Cadastre e organize os centros de custo usados para classificar
+              receitas e despesas, facilitando a analise financeira e a gestao
+              dos lancamentos vinculados ao usuario.
             </p>
           </div>
 
@@ -201,149 +247,84 @@ export function CostCenterPage() {
           </div>
         </header>
 
-        <section className="cost-center-summary">
-          <div className="cost-center-summary-item cost-center-summary-item-primary">
-            <span>Total de gastos</span>
-            <strong>{formatCurrency(totalExpenses)}</strong>
-            <small>Soma de todos os gastos cadastrados.</small>
-          </div>
-
-          <div className="cost-center-summary-item">
-            <span>Gastos cadastrados</span>
-            <strong>{expenses.length}</strong>
-            <small>Total de lançamentos registrados.</small>
-          </div>
-
-          <div className="cost-center-summary-item">
-            <span>Recorrentes</span>
-            <strong>{recurringExpenses}</strong>
-            <small>Gastos com repetição periódica.</small>
-          </div>
-
-          <div className="cost-center-summary-item">
-            <span>Não recorrentes</span>
-            <strong>{nonRecurringExpenses}</strong>
-            <small>Gastos pontuais cadastrados.</small>
-          </div>
-        </section>
-
         <div className="cost-center-content-grid">
-          <form className="cost-center-form" onSubmit={handleSubmit}>
+          <form
+            className={`cost-center-form${isBusy ? " cost-center-form--busy" : ""}`}
+            onSubmit={handleSubmit}
+          >
             <div className="cost-center-section-heading">
               <span>Cadastro</span>
+
               <h3>
-                {editingExpenseId ? "Editar gasto" : "Registrar novo gasto"}
+                {editingCostCenterId !== null
+                  ? "Editar centro de custo"
+                  : "Cadastrar centro de custo"}
               </h3>
+
               <p>
-                Preencha os dados do lançamento e vincule-o ao centro de custo
-                correspondente.
+                Informe a descricao do centro de custo e, se necessario,
+                adicione uma observacao para complementar o cadastro.
               </p>
             </div>
 
+            {isBusy && (
+              <div className="cost-center-loading-banner" role="status" aria-live="polite">
+                <span className="cost-center-loading-spinner" />
+                <span>{getBusyMessage()}</span>
+              </div>
+            )}
+
             <div className="cost-center-form-grid">
               <TextField
-                label="Descrição:"
+                label="Descricao:"
                 type="text"
-                placeholder="Ex: Internet, aluguel, manutenção"
-                value={description}
-                onChange={(event) => setDescription(event.target.value)}
+                placeholder="Ex: Alimentacao, Transporte, Salario"
+                value={descricao}
+                disabled={isBusy}
+                onChange={(event) => setDescricao(event.target.value)}
               />
 
-              <TextField
-                label="Valor:"
-                type="number"
-                placeholder="Ex: 150.00"
-                value={value}
-                onChange={(event) => setValue(event.target.value)}
-              />
+              <div className="cost-center-field cost-center-field-full">
+                <label className="cost-center-label">Observacao:</label>
 
-              <TextField
-                label={type === "recorrente" ? "Data de início:" : "Data:"}
-                type="date"
-                placeholder=""
-                value={date}
-                onChange={(event) => setDate(event.target.value)}
-              />
+                <textarea
+                  className="cost-center-textarea"
+                  placeholder="Ex: Centro usado para classificar despesas mensais de transporte."
+                  value={observacao}
+                  maxLength={500}
+                  disabled={isBusy}
+                  onChange={(event) => setObservacao(event.target.value)}
+                />
 
-              <div className="cost-center-field">
-                <label className="cost-center-label">Tipo de gasto:</label>
-
-                <select
-                  className="cost-center-select"
-                  value={type}
-                  onChange={(event) => {
-                    const selectedType = event.target.value as ExpenseType;
-                    setType(selectedType);
-
-                    if (selectedType === "nao-recorrente") {
-                      setPeriodicity("");
-                    }
-                  }}
-                >
-                  <option value="recorrente">Recorrente</option>
-                  <option value="nao-recorrente">Não recorrente</option>
-                </select>
-              </div>
-
-              {type === "recorrente" && (
-                <div className="cost-center-field">
-                  <label className="cost-center-label">Periodicidade:</label>
-
-                  <select
-                    className="cost-center-select"
-                    value={periodicity}
-                    onChange={(event) => setPeriodicity(event.target.value)}
-                  >
-                    <option value="">Selecione</option>
-                    <option value="Semanal">Semanal</option>
-                    <option value="Quinzenal">Quinzenal</option>
-                    <option value="Mensal">Mensal</option>
-                    <option value="Anual">Anual</option>
-                  </select>
-                </div>
-              )}
-
-              <div className="cost-center-field">
-                <label className="cost-center-label">Centro de custo:</label>
-
-                <select
-                  className="cost-center-select"
-                  value={source}
-                  onChange={(event) => setSource(event.target.value)}
-                >
-                  <option value="">Selecione um centro de custo</option>
-
-                  {availableSources.map((sourceOption) => (
-                    <option key={sourceOption} value={sourceOption}>
-                      {sourceOption}
-                    </option>
-                  ))}
-                </select>
+                <small className="cost-center-counter">
+                  {observacao.length}/500 caracteres
+                </small>
               </div>
             </div>
-
-            {error && <p className="cost-center-error-message">{error}</p>}
 
             {successMessage && (
               <p className="cost-center-success-message">{successMessage}</p>
             )}
 
             <div className="cost-center-actions">
-              <PrimaryButton type="submit">
-                {loading
-                  ? "Salvando..."
-                  : editingExpenseId
-                  ? "Salvar alterações"
-                  : "Cadastrar gasto"}
+              <PrimaryButton type="submit" disabled={isBusy}>
+                {editingCostCenterId !== null
+                  ? isSubmitting
+                    ? "Salvando alteracoes..."
+                    : "Salvar alteracoes"
+                  : isSubmitting
+                  ? "Cadastrando..."
+                  : "Cadastrar centro de custo"}
               </PrimaryButton>
 
-              {editingExpenseId && (
+              {editingCostCenterId !== null && (
                 <button
                   type="button"
                   className="cost-center-cancel-button"
+                  disabled={isBusy}
                   onClick={resetForm}
                 >
-                  Cancelar edição
+                  Cancelar edicao
                 </button>
               )}
             </div>
@@ -355,30 +336,33 @@ export function CostCenterPage() {
             <h3>Como usar esta tela?</h3>
 
             <p>
-              O centro de custo ajuda a separar os gastos por área, finalidade
-              ou origem. Isso facilita entender para onde o dinheiro está indo
-              e quais categorias pesam mais no orçamento.
+              O centro de custo funciona como uma categoria financeira. Ele
+              permite agrupar receitas e despesas por finalidade, area ou tipo
+              de movimentacao.
             </p>
 
             <div className="cost-center-info-list">
               <div>
                 <strong>1</strong>
-                <span>Escolha se o gasto é recorrente ou pontual.</span>
+                <span>Cadastre uma descricao clara para o centro de custo.</span>
               </div>
 
               <div>
                 <strong>2</strong>
-                <span>Informe valor, data e descrição do lançamento.</span>
+                <span>Use a observacao para registrar detalhes complementares.</span>
               </div>
 
               <div>
                 <strong>3</strong>
-                <span>Vincule o gasto ao centro de custo correto.</span>
+                <span>
+                  Edite centros existentes quando houver mudanca de nome ou
+                  finalidade.
+                </span>
               </div>
 
               <div>
                 <strong>4</strong>
-                <span>Acompanhe os totais na listagem e nos resumos.</span>
+                <span>Exclua apenas centros que nao devem mais ser utilizados.</span>
               </div>
             </div>
           </aside>
@@ -387,25 +371,35 @@ export function CostCenterPage() {
         <section className="cost-center-list-box">
           <div className="cost-center-list-header">
             <div>
-              <span className="cost-center-eyebrow">Histórico</span>
+              <span className="cost-center-eyebrow">Historico</span>
+
               <h3 className="cost-center-section-title">
-                Gastos cadastrados
+                Centros de custo cadastrados
               </h3>
             </div>
 
             <p>
-              Consulte, edite ou exclua lançamentos vinculados aos centros de
-              custo.
+              Consulte, edite ou exclua os centros de custo disponiveis para
+              organizar seus lancamentos financeiros.
             </p>
           </div>
 
-          {expenses.length === 0 ? (
+          {isLoading ? (
             <div className="cost-center-empty-state">
-              <strong>Nenhum gasto cadastrado ainda.</strong>
+              <strong>Carregando centros de custo...</strong>
 
               <p>
-                Assim que você registrar um gasto, ele aparecerá nesta área com
-                valor, data, tipo, periodicidade e centro de custo.
+                Aguarde um instante enquanto buscamos os dados cadastrados para
+                o usuario autenticado.
+              </p>
+            </div>
+          ) : costCenters.length === 0 ? (
+            <div className="cost-center-empty-state">
+              <strong>Nenhum centro de custo cadastrado ainda.</strong>
+
+              <p>
+                Assim que voce cadastrar um centro de custo, ele aparecera nesta
+                area com descricao, observacao e acoes disponiveis.
               </p>
             </div>
           ) : (
@@ -413,43 +407,30 @@ export function CostCenterPage() {
               <table className="cost-center-table">
                 <thead>
                   <tr>
-                    <th>Descrição</th>
-                    <th>Valor</th>
-                    <th>Data</th>
-                    <th>Tipo</th>
-                    <th>Periodicidade</th>
-                    <th>Centro de custo</th>
-                    <th>Ações</th>
+                    <th>Descricao</th>
+                    <th>Observacao</th>
+                    <th>Acoes</th>
                   </tr>
                 </thead>
 
                 <tbody>
-                  {expenses.map((expense) => (
-                    <tr key={expense.id}>
-                      <td>{expense.description}</td>
-                      <td>{formatCurrency(expense.value)}</td>
-                      <td>{formatDate(expense.date)}</td>
+                  {costCenters.map((costCenter) => (
+                    <tr key={costCenter.id}>
+                      <td>{costCenter.descricao}</td>
+
                       <td>
-                        <span
-                          className={`cost-center-badge ${
-                            expense.type === "recorrente"
-                              ? "cost-center-badge-recurring"
-                              : "cost-center-badge-not-recurring"
-                          }`}
-                        >
-                          {expense.type === "recorrente"
-                            ? "Recorrente"
-                            : "Não recorrente"}
-                        </span>
+                        {costCenter.observacao.trim()
+                          ? costCenter.observacao
+                          : "-"}
                       </td>
-                      <td>{expense.periodicity ?? "-"}</td>
-                      <td>{expense.source}</td>
+
                       <td>
                         <div className="cost-center-table-actions">
                           <button
                             type="button"
                             className="cost-center-edit-button"
-                            onClick={() => handleEdit(expense)}
+                            disabled={isBusy}
+                            onClick={() => handleEdit(costCenter)}
                           >
                             Editar
                           </button>
@@ -457,9 +438,12 @@ export function CostCenterPage() {
                           <button
                             type="button"
                             className="cost-center-delete-button"
-                            onClick={() => handleDelete(expense.id)}
+                            disabled={isBusy}
+                            onClick={() => handleDelete(costCenter.id)}
                           >
-                            Excluir
+                            {pendingDeleteId === costCenter.id
+                              ? "Excluindo..."
+                              : "Excluir"}
                           </button>
                         </div>
                       </td>
