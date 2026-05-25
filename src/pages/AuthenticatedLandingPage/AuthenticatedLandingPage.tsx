@@ -2,7 +2,7 @@ import { Link } from 'react-router-dom'
 import { useAuth } from '../../hooks/useAuth'
 import { getUserNickname } from '../../utils/userDisplay'
 import { shortcuts } from './HomeShortCut'
-import './AuthenticatedLandingPage.css'
+import './authenticatedLandingPage.css'
 
 export function AuthenticatedLandingPage() {
   const { user } = useAuth()

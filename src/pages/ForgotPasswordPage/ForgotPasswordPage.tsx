@@ -189,7 +189,7 @@ export function ForgotPasswordPage() {
     <section className="forgot-password-page">
       <FloatingAlert
         isOpen={Boolean(alertMessage)}
-        title="Nao foi possivel continuar"
+        title="Não foi possível continuar"
         message={alertMessage}
         onClose={() => setAlertMessage("")}
       />
