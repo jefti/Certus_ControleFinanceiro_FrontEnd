@@ -123,6 +123,10 @@
   box-shadow: 0 22px 54px rgba(2, 6, 23, 0.18);
 }
 
+.cost-center-form--busy {
+  position: relative;
+}
+
 .cost-center-section-heading {
   margin-bottom: 24px;
 }
@@ -199,23 +203,16 @@
   box-shadow: 0 0 0 3px rgba(14, 165, 233, 0.16);
 }
 
+.cost-center-textarea:disabled {
+  background: #f8fafc;
+  cursor: wait;
+}
+
 .cost-center-counter {
   display: flex;
   justify-content: flex-end;
   color: #64748b;
   font-size: 12px;
-}
-
-.cost-center-error-message {
-  width: 100%;
-  margin: 16px 0 0;
-  padding: 12px 14px;
-  border-radius: 12px;
-  background: #fee2e2;
-  color: #991b1b;
-  font-size: 13px;
-  font-weight: 700;
-  text-align: center;
 }
 
 .cost-center-success-message {
@@ -228,6 +225,28 @@
   font-size: 13px;
   font-weight: 700;
   text-align: center;
+}
+
+.cost-center-loading-banner {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 18px;
+  padding: 10px 14px;
+  border-radius: 999px;
+  background: #e0f2fe;
+  color: #075985;
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.cost-center-loading-spinner {
+  width: 16px;
+  height: 16px;
+  border: 2px solid rgba(7, 89, 133, 0.2);
+  border-top-color: #0284c7;
+  border-radius: 999px;
+  animation: cost-center-spin 0.7s linear infinite;
 }
 
 .cost-center-actions {
@@ -482,6 +501,16 @@
 .cost-center-delete-button:hover {
   opacity: 0.9;
   transform: translateY(-1px);
+}
+
+@keyframes cost-center-spin {
+  from {
+    transform: rotate(0deg);
+  }
+
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 @media (max-width: 1080px) {
