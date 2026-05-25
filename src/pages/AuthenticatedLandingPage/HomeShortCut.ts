@@ -18,12 +18,10 @@ export const shortcuts: HomeShortcut[] = [
   },
   {
     title: 'Centro de Custos',
-    description:
-      'Esse m\u00f3dulo foi pausado temporariamente e ser\u00e1 refeito para refletir o conceito correto do projeto.',
+    description: 'Veja os centros de custos criados para organizar suas finanças.',
     path: '/centro-de-custos',
-    status: 'Temporariamente desativado',
-    buttonLabel: 'Aguardando revis\u00e3o',
-    disabled: true,
+    status: 'Disponível agora',
+    buttonLabel: 'Abrir cadastro',
   },
   {
     title: 'T\u00edtulos',
