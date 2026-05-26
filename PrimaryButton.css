@@ -1,0 +1,27 @@
+export interface FinancialCard {
+  title: string
+  value: number
+  percentage: number
+  type: 'income' | 'expense' | 'balance'
+}
+
+export interface Transaction {
+  id: string
+  description: string
+  amount: number
+  date: string
+  status: 'pending' | 'completed' | 'overdue'
+  type: 'income' | 'expense'
+}
+
+export interface ChartData {
+  month: string
+  income: number
+  expense: number
+}
+
+export interface DashboardData {
+  financialData: FinancialCard[]
+  chartData: ChartData[]
+  transactions: Transaction[]
+}
