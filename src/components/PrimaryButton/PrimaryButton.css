@@ -7,7 +7,9 @@
 }
 
 .primary-button {
-  min-width: 250px;
+  width: 100%;
+  min-width: 0;
+  max-width: 250px;
   height: 40px;
   border: none;
   border-radius: var(--radius-sm);
@@ -28,4 +30,6 @@
 .primary-button__footer {
   font-size: 13px;
   color: var(--color-text);
+  text-align: center;
+  width: 100%;
 }

@@ -6,6 +6,8 @@
   align-items: center;
   justify-content: center;
   gap: 0 4px;
+  min-width: 0;
+  flex-wrap: wrap;
 }
 
 .login-form {
@@ -28,4 +30,21 @@
 
 .login-form-message--success {
   color: #1f7a3d;
+}
+
+.login-helper-link,
+.login-register-text,
+.login-register-link {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+@media (max-width: 480px) {
+  .login-helper-text {
+    justify-content: flex-start;
+  }
+
+  .login-helper-link {
+    text-align: right;
+  }
 }
