@@ -3,6 +3,7 @@
   flex-direction: column;
   gap: 8px;
   margin-bottom: 10px;
+  width: 100%;
 }
 
 .text-field__label {
@@ -11,8 +12,8 @@
 }
 
 .text-field__input {
-  width: 490px;
-  /* width: 100%; */
+  width: 100%;
+  min-width: 0;
   height: 40px;
   border: 1px solid var(--color-border-muted);
   border-radius: var(--radius-sm);
@@ -31,6 +32,8 @@
   justify-content: space-between;
   gap: 12px;
   min-height: 20px;
+  width: 100%;
+  flex-wrap: wrap;
 }
 
 .text-field__footer-left,
@@ -38,6 +41,29 @@
   display: flex;
   align-items: center;
   gap: 8px;
+  min-width: 0;
+}
+
+.text-field__footer-right {
+  margin-left: auto;
+}
+
+@media (max-width: 480px) {
+  .text-field__footer {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 8px;
+  }
+
+  .text-field__footer-left,
+  .text-field__footer-right {
+    width: 100%;
+    justify-content: space-between;
+  }
+
+  .text-field__footer-right {
+    margin-left: 0;
+  }
 }
 
 .text-field__error {
