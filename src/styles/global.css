@@ -93,11 +93,19 @@ img {
   padding: 64px 16px 16px;
 }
 
+@media (max-width: 720px) {
+  .app-content {
+    padding: 76px 12px 102px;
+  }
+}
+
 .login-page,
 .forgot-password-page {
   display: flex;
   justify-content: center;
   align-items: flex-start;
+  width: 100%;
+  min-width: 0;
   padding-top: 20px;
   padding-left: 16px;
   padding-right: 16px;
@@ -107,6 +115,7 @@ img {
 .forgot-password-card {
   width: 100%;
   max-width: 600px;
+  min-width: 0;
   background: var(--color-surface);
   padding: 18px 16px;
   display: flex;
@@ -136,6 +145,7 @@ img {
 .login-form,
 .forgot-password-form {
   width: 100%;
+  min-width: 0;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -143,6 +153,7 @@ img {
 
 .login-footer,
 .forgot-password-footer {
+  width: 100%;
   margin-top: 20px;
   display: flex;
   justify-content: center;
@@ -163,4 +174,38 @@ img {
 .forgot-password-register-link {
   color: var(--color-link);
   font-weight: 500;
+}
+
+@media (max-width: 480px) {
+  .app-content {
+    padding: 56px 10px 100px;
+  }
+
+  .login-page,
+  .forgot-password-page {
+    padding-top: 12px;
+    padding-left: 10px;
+    padding-right: 10px;
+  }
+
+  .login-card,
+  .forgot-password-card {
+    padding: 16px 12px;
+    gap: 10px;
+  }
+
+  .loginPage-Img,
+  .forgotPasswordPage-Img {
+    max-height: 132px;
+  }
+
+  .login-logo,
+  .forgot-password-logo {
+    padding: 0 4px;
+  }
+
+  .login-footer,
+  .forgot-password-footer {
+    margin-top: 14px;
+  }
 }

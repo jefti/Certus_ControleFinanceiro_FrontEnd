@@ -1,4 +1,5 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import { ConfirmDialog } from "../../components/ConfirmDialog/ConfirmDialog";
 import { FloatingAlert } from "../../components/FloatingAlert/FloatingAlert";
 import { PrimaryButton } from "../../components/PrimaryButton/PrimaryButton";
 import { TextField } from "../../components/TextField/TextField";
@@ -13,6 +14,8 @@ import type { CostCenter } from "../../types/CostCenter";
 import "./CostCenterPage.css";
 
 export function CostCenterPage() {
+  const formRef = useRef<HTMLFormElement | null>(null);
+  const listRef = useRef<HTMLElement | null>(null);
   const [costCenters, setCostCenters] = useState<CostCenter[]>([]);
   const [editingCostCenterId, setEditingCostCenterId] = useState<number | null>(
     null
@@ -22,6 +25,7 @@ export function CostCenterPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [pendingDeleteId, setPendingDeleteId] = useState<number | null>(null);
+  const [confirmDeleteId, setConfirmDeleteId] = useState<number | null>(null);
   const [successMessage, setSuccessMessage] = useState("");
   const [alertMessage, setAlertMessage] = useState("");
 
@@ -52,6 +56,17 @@ export function CostCenterPage() {
     setDescricao("");
     setObservacao("");
     setEditingCostCenterId(null);
+
+    window.requestAnimationFrame(() => {
+      const listTop = listRef.current?.getBoundingClientRect().top;
+
+      if (typeof listTop === "number") {
+        window.scrollTo({
+          top: window.scrollY + listTop - 84,
+          behavior: "smooth",
+        });
+      }
+    });
   }
 
   function validateForm() {
@@ -159,26 +174,36 @@ export function CostCenterPage() {
     setDescricao(costCenter.descricao);
     setObservacao(costCenter.observacao);
     setSuccessMessage("");
+
+    window.requestAnimationFrame(() => {
+      const formTop = formRef.current?.getBoundingClientRect().top;
+
+      if (typeof formTop === "number") {
+        window.scrollTo({
+          top: window.scrollY + formTop - 84,
+          behavior: "smooth",
+        });
+      }
+    });
   }
 
-  async function handleDelete(costCenterId: number) {
+  function handleDeleteRequest(costCenterId: number) {
     if (isBusy) return;
+    setConfirmDeleteId(costCenterId);
+  }
 
-    const confirmDelete = window.confirm(
-      "Tem certeza que deseja excluir este centro de custo?"
-    );
-
-    if (!confirmDelete) return;
+  async function handleDeleteConfirm() {
+    if (confirmDeleteId === null) return;
 
     try {
-      setPendingDeleteId(costCenterId);
-      await deleteCostCenter(costCenterId);
+      setPendingDeleteId(confirmDeleteId);
+      await deleteCostCenter(confirmDeleteId);
 
       setCostCenters((currentCostCenters) =>
-        currentCostCenters.filter((costCenter) => costCenter.id !== costCenterId)
+        currentCostCenters.filter((costCenter) => costCenter.id !== confirmDeleteId)
       );
 
-      if (editingCostCenterId === costCenterId) {
+      if (editingCostCenterId === confirmDeleteId) {
         resetForm();
       }
 
@@ -192,6 +217,7 @@ export function CostCenterPage() {
         )
       );
     } finally {
+      setConfirmDeleteId(null);
       setPendingDeleteId(null);
     }
   }
@@ -214,6 +240,15 @@ export function CostCenterPage() {
 
   return (
     <section className="cost-center-page">
+      <ConfirmDialog
+        isOpen={confirmDeleteId !== null}
+        title="Excluir centro de custo"
+        message="Tem certeza que deseja excluir este centro de custo?"
+        confirmLabel="Excluir"
+        onConfirm={handleDeleteConfirm}
+        onCancel={() => setConfirmDeleteId(null)}
+      />
+
       <FloatingAlert
         isOpen={Boolean(alertMessage)}
         title="Não foi possível concluir à operação"
@@ -249,6 +284,7 @@ export function CostCenterPage() {
 
         <div className="cost-center-content-grid">
           <form
+            ref={formRef}
             className={`cost-center-form${isBusy ? " cost-center-form--busy" : ""}`}
             onSubmit={handleSubmit}
           >
@@ -368,7 +404,7 @@ export function CostCenterPage() {
           </aside>
         </div>
 
-        <section className="cost-center-list-box">
+        <section ref={listRef} className="cost-center-list-box">
           <div className="cost-center-list-header">
             <div>
               <span className="cost-center-eyebrow">Historico</span>
@@ -378,7 +414,7 @@ export function CostCenterPage() {
               </h3>
             </div>
 
-            <p>
+            <p className="cost-center-list-description">
               Consulte, edite ou exclua os centros de custo disponiveis para
               organizar seus lancamentos financeiros.
             </p>
@@ -403,55 +439,93 @@ export function CostCenterPage() {
               </p>
             </div>
           ) : (
-            <div className="cost-center-table-wrapper">
-              <table className="cost-center-table">
-                <thead>
-                  <tr>
-                    <th>Descricao</th>
-                    <th>Observacao</th>
-                    <th>Acoes</th>
-                  </tr>
-                </thead>
-
-                <tbody>
-                  {costCenters.map((costCenter) => (
-                    <tr key={costCenter.id}>
-                      <td>{costCenter.descricao}</td>
-
-                      <td>
-                        {costCenter.observacao.trim()
-                          ? costCenter.observacao
-                          : "-"}
-                      </td>
-
-                      <td>
-                        <div className="cost-center-table-actions">
-                          <button
-                            type="button"
-                            className="cost-center-edit-button"
-                            disabled={isBusy}
-                            onClick={() => handleEdit(costCenter)}
-                          >
-                            Editar
-                          </button>
-
-                          <button
-                            type="button"
-                            className="cost-center-delete-button"
-                            disabled={isBusy}
-                            onClick={() => handleDelete(costCenter.id)}
-                          >
-                            {pendingDeleteId === costCenter.id
-                              ? "Excluindo..."
-                              : "Excluir"}
-                          </button>
-                        </div>
-                      </td>
+            <>
+              <div className="cost-center-table-wrapper">
+                <table className="cost-center-table">
+                  <thead>
+                    <tr>
+                      <th>Descricao</th>
+                      <th>Observacao</th>
+                      <th>Acoes</th>
                     </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
+                  </thead>
+
+                  <tbody>
+                    {costCenters.map((costCenter) => (
+                      <tr key={costCenter.id}>
+                        <td>{costCenter.descricao}</td>
+
+                        <td>
+                          {costCenter.observacao.trim()
+                            ? costCenter.observacao
+                            : "-"}
+                        </td>
+
+                        <td>
+                          <div className="cost-center-table-actions">
+                            <button
+                              type="button"
+                              className="cost-center-edit-button"
+                              disabled={isBusy}
+                              onClick={() => handleEdit(costCenter)}
+                            >
+                              Editar
+                            </button>
+
+                            <button
+                              type="button"
+                              className="cost-center-delete-button"
+                              disabled={isBusy}
+                              onClick={() => handleDeleteRequest(costCenter.id)}
+                            >
+                              {pendingDeleteId === costCenter.id
+                                ? "Excluindo..."
+                                : "Excluir"}
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+
+              <div className="cost-center-mobile-list">
+                {costCenters.map((costCenter) => (
+                  <article key={costCenter.id} className="cost-center-mobile-card">
+                    <strong className="cost-center-mobile-card__value">
+                      {costCenter.descricao}
+                    </strong>
+
+                    {costCenter.observacao.trim() ? (
+                      <p className="cost-center-mobile-card__text">
+                        {costCenter.observacao}
+                      </p>
+                    ) : null}
+
+                    <div className="cost-center-mobile-card__actions">
+                      <button
+                        type="button"
+                        className="cost-center-edit-button"
+                        disabled={isBusy}
+                        onClick={() => handleEdit(costCenter)}
+                      >
+                        Editar
+                      </button>
+
+                      <button
+                        type="button"
+                        className="cost-center-delete-button"
+                        disabled={isBusy}
+                        onClick={() => handleDeleteRequest(costCenter.id)}
+                      >
+                        {pendingDeleteId === costCenter.id ? "Excluindo..." : "Excluir"}
+                      </button>
+                    </div>
+                  </article>
+                ))}
+              </div>
+            </>
           )}
         </section>
       </div>
