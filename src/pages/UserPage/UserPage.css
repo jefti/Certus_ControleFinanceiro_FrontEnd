@@ -90,9 +90,59 @@
   padding: 24px;
 }
 
+.user-page__card--status {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.user-page__status-list,
+.user-page__panel {
+  display: grid;
+  gap: 18px;
+}
+
+.user-page__status-list {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  margin-top: 22px;
+}
+
+.user-page__status-item,
+.user-page__panel-card {
+  border-radius: 20px;
+  background: rgba(242, 247, 252, 0.88);
+  padding: 18px;
+}
+
+.user-page__status-item strong {
+  display: block;
+  margin-top: 8px;
+  color: var(--color-primary-strong);
+}
+
+.user-page__panel {
+  width: var(--page-content-width);
+  margin: 26px auto 0;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.user-page__panel-title {
+  margin: 10px 0 0;
+  color: var(--color-primary-strong);
+  font-size: 1.35rem;
+}
+
+.user-page__facts {
+  margin: 16px 0 0;
+  padding-left: 18px;
+  color: #516678;
+  line-height: 1.7;
+}
+
 @media (max-width: 900px) {
   .user-page__hero,
-  .user-page__grid {
+  .user-page__grid,
+  .user-page__panel {
     grid-template-columns: 1fr;
   }
 }
@@ -111,5 +161,9 @@
   .user-page__identity {
     flex-direction: column;
     align-items: flex-start;
+  }
+
+  .user-page__status-list {
+    grid-template-columns: 1fr;
   }
 }
