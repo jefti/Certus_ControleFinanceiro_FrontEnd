@@ -1,316 +1,634 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
-  Area,
-  AreaChart,
+  Bar,
+  ComposedChart,
   CartesianGrid,
+  Line,
   ResponsiveContainer,
   Tooltip,
   XAxis,
   YAxis,
 } from "recharts";
-
+import { FloatingAlert } from "../../components/FloatingAlert/FloatingAlert";
+import { getDashboard } from "../../services/dashboardService";
+import { validarFaturamento } from "../../services/faturamentoService";
+import { getApiErrorMessage } from "../../services/httpError";
+import type { DashboardLancamento, DashboardResponse } from "../../types/dashboard";
 import "./DashboardPage.css";
 
-const summaryCards = [
-  {
-    title: "Total depositos",
-    value: "R$ 1.200,00",
-    tone: "positive" as const,
-    icon: "$",
-    points: [26, 29, 31, 30, 34, 35, 35, 39, 42, 41, 43, 45],
-  },
-  {
-    title: "Total despesas",
-    value: "R$ 1.200,00",
-    tone: "negative" as const,
-    icon: "$",
-    points: [34, 31, 29, 35, 32, 33, 30, 31, 33, 34, 33, 32],
-  },
-  {
-    title: "Saldo",
-    value: "R$ 1.200,00",
-    tone: "neutral" as const,
-    icon: "S",
-    points: [],
-  },
-];
+function getCurrentMonthRange() {
+  const now = new Date();
+  const start = new Date(now.getFullYear(), now.getMonth(), 1);
+  const end = new Date(now.getFullYear(), now.getMonth() + 1, 0);
 
-const chartPeriods = [
-  { value: "semana", label: "Semana" },
-  { value: "mes", label: "Mes" },
-  { value: "ano", label: "ano" },
-  { value: "tudo", label: "tudo" },
-] as const;
+  return {
+    inicio: start.toISOString().slice(0, 10),
+    fim: end.toISOString().slice(0, 10),
+  };
+}
 
-type ChartPeriod = (typeof chartPeriods)[number]["value"];
+function formatCurrency(value: number) {
+  return value.toLocaleString("pt-BR", {
+    style: "currency",
+    currency: "BRL",
+  });
+}
 
-const chartDataByPeriod: Record<
-  ChartPeriod,
-  {
-    meses: string[];
-    receita: number[];
-    despesa: number[];
-  }
-> = {
-  semana: {
-    meses: ["Seg", "Ter", "Qua", "Qui", "Sex", "Sab", "Dom"],
-    receita: [42, 55, 49, 62, 58, 71, 65],
-    despesa: [24, 32, 29, 36, 33, 41, 38],
-  },
-  mes: {
-    meses: ["Jan", "Fev", "Mar", "Abr", "Mai", "Jun", "Jul", "Ago", "Set", "Out", "Nov", "Dez"],
-    receita: [40, 30, 50, 55, 32, 68, 74, 47, 56, 63, 52, 60],
-    despesa: [22, 31, 39, 60, 22, 42, 60, 34, 49, 43, 67, 74],
-  },
-  ano: {
-    meses: ["2021", "2022", "2023", "2024", "2025", "2026"],
-    receita: [38, 46, 57, 61, 72, 79],
-    despesa: [25, 33, 39, 41, 52, 58],
-  },
-  tudo: {
-    meses: ["1", "2", "3", "4", "5", "6", "7", "8"],
-    receita: [28, 40, 34, 57, 49, 68, 59, 76],
-    despesa: [19, 26, 31, 38, 29, 43, 48, 54],
-  },
-};
-
-const bottomStats = [
-  { value: "12,721", label: "Numero de custo" },
-  { value: "3", label: "Gastos fixos" },
-  { value: "R$2.500,00", label: "Remuneracao" },
-  { value: "12,275h", label: "Working Hours" },
-];
-
-const quickItems = [
-  {
-    tag: "Prox. de pagamento",
-    title: "Aluguel",
-    date: "2023-12-26 07:15:00",
-    tone: "warning" as const,
-  },
-  {
-    tag: "Pagamento finalizado",
-    title: "Seguro",
-    date: "2023-12-26 07:15:00",
-    tone: "success" as const,
-  },
-  {
-    tag: "",
-    title: "Cartao de credito",
-    date: "2023-12-26 07:15:00",
-    tone: "muted" as const,
-  },
-];
-
-function buildMiniLine(points: number[]) {
-  if (!points.length) {
-    return "";
+function formatDate(date: string | null) {
+  if (!date) {
+    return "-";
   }
 
-  const width = 240;
-  const height = 54;
-  const max = Math.max(...points);
-  const min = Math.min(...points);
-  const range = Math.max(max - min, 1);
+  const [year, month, day] = date.slice(0, 10).split("-");
 
-  return points
-    .map((point, index) => {
-      const x = (width / Math.max(points.length - 1, 1)) * index;
-      const y = height - ((point - min) / range) * 22 - 12;
+  if (!year || !month || !day) {
+    return date;
+  }
 
-      return `${index === 0 ? "M" : "L"} ${x} ${y}`;
-    })
-    .join(" ");
+  return `${day}/${month}/${year}`;
+}
+
+function formatTipo(tipo: DashboardLancamento["tipo"]) {
+  return tipo === "RECEBER" ? "Receber" : "Pagar";
+}
+
+function formatStatus(status: DashboardLancamento["status"]) {
+  switch (status) {
+    case "PAGO":
+      return "Pago";
+    case "ATRASADO":
+      return "Atrasado";
+    default:
+      return "Em aberto";
+  }
+}
+
+function toDateKey(date: string | null) {
+  return date ? date.slice(0, 10) : null;
+}
+
+function getSignedValue(lancamento: DashboardLancamento) {
+  return lancamento.tipo === "RECEBER" ? lancamento.valor : -lancamento.valor;
+}
+
+function buildDailyChartRows(
+  lancamentos: DashboardLancamento[],
+  periodoInicial: string,
+  periodoFinal: string,
+) {
+  const rows: Array<{
+    data: string;
+    movimentoPrevisto: number;
+    movimentoReal: number;
+    previsto: number;
+    realizado: number;
+  }> = [];
+
+  const start = new Date(`${periodoInicial}T00:00:00`);
+  const end = new Date(`${periodoFinal}T00:00:00`);
+  let previstoAcumulado = 0;
+  let realizadoAcumulado = 0;
+
+  for (const cursor = new Date(start); cursor <= end; cursor.setDate(cursor.getDate() + 1)) {
+    const key = cursor.toISOString().slice(0, 10);
+
+    const movimentoPrevisto = lancamentos
+      .filter((item) => toDateKey(item.dataVencimento) === key)
+      .reduce((total, item) => total + getSignedValue(item), 0);
+
+    const movimentoReal = lancamentos
+      .filter((item) => toDateKey(item.dataPagamento) === key)
+      .reduce((total, item) => total + getSignedValue(item), 0);
+
+    previstoAcumulado += movimentoPrevisto;
+    realizadoAcumulado += movimentoReal;
+
+    rows.push({
+      data: formatDate(key),
+      movimentoPrevisto,
+      movimentoReal,
+      previsto: previstoAcumulado,
+      realizado: realizadoAcumulado,
+    });
+  }
+
+  return rows;
 }
 
 export function DashboardPage() {
-  const [selectedPeriod, setSelectedPeriod] = useState<ChartPeriod>("mes");
-  const chartSeries = chartDataByPeriod[selectedPeriod];
-  const chartRows = chartSeries.meses.map((mes, index) => ({
-    mes,
-    receita: chartSeries.receita[index],
-    despesa: chartSeries.despesa[index],
-  }));
+  const [periodo, setPeriodo] = useState(getCurrentMonthRange);
+  const [dashboard, setDashboard] = useState<DashboardResponse | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [isRefreshing, setIsRefreshing] = useState(false);
+  const [isSubmittingPayment, setIsSubmittingPayment] = useState(false);
+  const [alertMessage, setAlertMessage] = useState("");
+  const [pendingLancamento, setPendingLancamento] = useState<DashboardLancamento | null>(null);
+  const [dataPagamento, setDataPagamento] = useState("");
+
+  useEffect(() => {
+    void loadDashboard(periodo.inicio, periodo.fim, true);
+  }, []);
+
+  async function loadDashboard(
+    periodoInicial: string,
+    periodoFinal: string,
+    initialLoad = false,
+  ) {
+    try {
+      if (initialLoad) {
+        setIsLoading(true);
+      } else {
+        setIsRefreshing(true);
+      }
+
+      const response = await getDashboard(periodoInicial, periodoFinal);
+      setDashboard(response);
+    } catch (error) {
+      setAlertMessage(
+        getApiErrorMessage(error, "Nao foi possivel carregar o dashboard.")
+      );
+    } finally {
+      setIsLoading(false);
+      setIsRefreshing(false);
+    }
+  }
+
+  function handleApplyPeriod() {
+    if (!periodo.inicio || !periodo.fim) {
+      setAlertMessage("Informe o periodo inicial e final para consultar o dashboard.");
+      return;
+    }
+
+    if (periodo.fim < periodo.inicio) {
+      setAlertMessage("O periodo final deve ser maior ou igual ao periodo inicial.");
+      return;
+    }
+
+    void loadDashboard(periodo.inicio, periodo.fim);
+  }
+
+  const chartRowsWithBalance = dashboard
+    ? buildDailyChartRows(dashboard.lancamentos, dashboard.periodoInicial, dashboard.periodoFinal)
+    : [];
+
+  const summaryCards = dashboard
+    ? [
+        {
+          title: "Total de receitas",
+          value: formatCurrency(dashboard.totalReceitas),
+          tone: "positive" as const,
+        },
+        {
+          title: "Total de despesas",
+          value: formatCurrency(dashboard.totalDespesas),
+          tone: "negative" as const,
+        },
+        {
+          title: "Saldo do periodo",
+          value: formatCurrency(dashboard.saldo),
+          tone: "neutral" as const,
+        },
+      ]
+    : [];
+
+  const bottomStats = dashboard
+    ? [
+        { value: String(dashboard.quantidadeCentrosDeCusto), label: "Centros de custo" },
+        { value: String(dashboard.quantidadeTitulosAtivos), label: "Titulos ativos" },
+        { value: String(dashboard.quantidadeLancamentos), label: "Lancamentos no periodo" },
+        { value: `${dashboard.periodoInicial} a ${dashboard.periodoFinal}`, label: "Periodo consultado" },
+      ]
+    : [];
+
+  const topLancamentos = dashboard?.lancamentos.slice(0, 5) ?? [];
+
+  function openPaymentModal(lancamento: DashboardLancamento) {
+    setPendingLancamento(lancamento);
+    setDataPagamento("");
+  }
+
+  function closePaymentModal() {
+    if (isSubmittingPayment) return;
+    setPendingLancamento(null);
+    setDataPagamento("");
+  }
+
+  async function handlePaymentConfirm() {
+    if (!pendingLancamento) {
+      return;
+    }
+
+    try {
+      setIsSubmittingPayment(true);
+
+      await validarFaturamento(pendingLancamento.id, {
+        dataPagamento: dataPagamento || null,
+        observacao: null,
+      });
+
+      await loadDashboard(periodo.inicio, periodo.fim);
+      setPendingLancamento(null);
+      setDataPagamento("");
+    } catch (error) {
+      setAlertMessage(
+        getApiErrorMessage(error, "Nao foi possivel ajustar o pagamento.")
+      );
+    } finally {
+      setIsSubmittingPayment(false);
+    }
+  }
 
   return (
     <main className="dashboard-page">
-      <div className="dashboard-page__container">
-        <header className="dashboard-page__topbar">
-          <h1 className="dashboard-page__title">Dashboard</h1>
-        </header>
+      <FloatingAlert
+        isOpen={Boolean(alertMessage)}
+        title="Nao foi possivel continuar"
+        message={alertMessage}
+        onClose={() => setAlertMessage("")}
+      />
 
-        <section className="dashboard-page__summary-grid">
-          {summaryCards.map((card) => (
-            <article
-              key={card.title}
-              className={`dashboard-page__summary-card dashboard-page__summary-card--${card.tone}`}
-            >
-              <div className="dashboard-page__summary-head">
-                <div>
-                  <span className="dashboard-page__summary-label">{card.title}</span>
-                  <strong className="dashboard-page__summary-value">{card.value}</strong>
-                </div>
+      {pendingLancamento ? (
+        <div
+          className="dashboard-page__payment-modal-backdrop"
+          role="presentation"
+          onClick={closePaymentModal}
+        >
+          <section
+            className="dashboard-page__payment-modal"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="dashboard-payment-title"
+            onClick={(event) => event.stopPropagation()}
+          >
+            <span className="dashboard-page__payment-modal-eyebrow">Confirmacao</span>
+            <h2 id="dashboard-payment-title" className="dashboard-page__payment-modal-title">
+              Confirmar pagamento
+            </h2>
+            <p className="dashboard-page__payment-modal-message">
+              Confirme a data do pagamento/recebimento para <strong>{pendingLancamento.tituloDescricao}</strong>.
+            </p>
 
-                <span className="dashboard-page__summary-icon">{card.icon}</span>
-              </div>
+            <label className="dashboard-page__payment-field">
+              <span>Data e hora do pagamento</span>
+              <input
+                type="datetime-local"
+                value={dataPagamento}
+                disabled={isSubmittingPayment}
+                onChange={(event) => setDataPagamento(event.target.value)}
+              />
+            </label>
 
-              {card.points.length > 0 ? (
-                <svg
-                  className="dashboard-page__summary-chart"
-                  viewBox="0 0 240 54"
-                  aria-hidden="true"
-                >
-                  <path
-                    d={buildMiniLine(card.points)}
-                    className="dashboard-page__summary-line"
-                  />
-                </svg>
-              ) : null}
-            </article>
-          ))}
-        </section>
-
-        <section className="dashboard-page__content-grid">
-          <section className="dashboard-page__chart-panel">
-            <div className="dashboard-page__panel-header">
-              <h2 className="dashboard-page__panel-title">Projects Overview</h2>
-
-              <div className="dashboard-page__tabs" aria-label="Periodo do grafico">
-                {chartPeriods.map((period) => (
-                  <button
-                    key={period.value}
-                    type="button"
-                    className={`dashboard-page__tab${
-                      period.value === selectedPeriod ? " dashboard-page__tab--active" : ""
-                    }`}
-                    onClick={() => setSelectedPeriod(period.value)}
-                  >
-                    {period.label}
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            <div className="dashboard-page__chart-area">
-              <div className="dashboard-page__chart-canvas">
-                <ResponsiveContainer width="100%" height="100%">
-                  <AreaChart
-                    data={chartRows}
-                    margin={{ top: 10, right: 6, left: -16, bottom: 4 }}
-                  >
-                    <defs>
-                      <linearGradient id="dashboard-income-gradient" x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="5%" stopColor="#32c971" stopOpacity={0.26} />
-                        <stop offset="95%" stopColor="#32c971" stopOpacity={0} />
-                      </linearGradient>
-                      <linearGradient id="dashboard-expense-gradient" x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="5%" stopColor="#ea7575" stopOpacity={0.22} />
-                        <stop offset="95%" stopColor="#ea7575" stopOpacity={0} />
-                      </linearGradient>
-                    </defs>
-
-                    <CartesianGrid
-                      vertical={false}
-                      stroke="#e8edf3"
-                      strokeDasharray="3 3"
-                    />
-                    <XAxis
-                      dataKey="mes"
-                      axisLine={false}
-                      tickLine={false}
-                      tick={{ fontSize: 12, fill: "#9aa6b2" }}
-                      dy={8}
-                    />
-                    <YAxis
-                      axisLine={false}
-                      tickLine={false}
-                      width={34}
-                      domain={[0, 100]}
-                      ticks={[0, 25, 50, 75, 100]}
-                      tick={{ fontSize: 12, fill: "#9aa6b2" }}
-                    />
-                    <Tooltip
-                      cursor={false}
-                      contentStyle={{
-                        border: "1px solid #dce3ea",
-                        borderRadius: "12px",
-                        boxShadow: "0 12px 28px rgba(15, 23, 42, 0.12)",
-                        fontSize: "12px",
-                      }}
-                    />
-                    <Area
-                      type="monotone"
-                      dataKey="receita"
-                      stroke="#32c971"
-                      strokeWidth={4}
-                      fill="url(#dashboard-income-gradient)"
-                      dot={false}
-                      activeDot={{ r: 5, fill: "#32c971", stroke: "#ffffff", strokeWidth: 2 }}
-                    />
-                    <Area
-                      type="monotone"
-                      dataKey="despesa"
-                      stroke="#ea7575"
-                      strokeWidth={4}
-                      fill="url(#dashboard-expense-gradient)"
-                      dot={false}
-                      activeDot={{ r: 5, fill: "#ea7575", stroke: "#ffffff", strokeWidth: 2 }}
-                    />
-                  </AreaChart>
-                </ResponsiveContainer>
-              </div>
-            </div>
-
-            <div className="dashboard-page__bottom-stats">
-              {bottomStats.map((item) => (
-                <article key={item.label} className="dashboard-page__bottom-stat">
-                  <strong>{item.value}</strong>
-                  <span>{item.label}</span>
-                </article>
-              ))}
+            <div className="dashboard-page__payment-modal-actions">
+              <button
+                type="button"
+                className="dashboard-page__modal-button dashboard-page__modal-button--secondary"
+                disabled={isSubmittingPayment}
+                onClick={closePaymentModal}
+              >
+                Cancelar
+              </button>
+              <button
+                type="button"
+                className="dashboard-page__modal-button dashboard-page__modal-button--primary"
+                disabled={isSubmittingPayment}
+                onClick={handlePaymentConfirm}
+              >
+                {isSubmittingPayment ? "Confirmando..." : "Confirmar pagamento"}
+              </button>
             </div>
           </section>
+        </div>
+      ) : null}
 
-          <aside className="dashboard-page__side-panel">
-            <div className="dashboard-page__panel-header dashboard-page__panel-header--side">
-              <h2 className="dashboard-page__panel-title">Meus itens</h2>
+      <div className="dashboard-page__container">
+        <header className="dashboard-page__topbar">
+          <div>
+            <span className="dashboard-page__eyebrow">Fluxo de caixa</span>
+            <h1 className="dashboard-page__title">Dashboard</h1>
+            <p className="dashboard-page__subtitle">
+              Visualize o desempenho financeiro do periodo com base nos faturamentos
+              reais do usuario autenticado.
+            </p>
+          </div>
 
-              <div className="dashboard-page__side-actions">
-                <button type="button" className="dashboard-page__ghost-button">
-                  + add
-                </button>
-                <button type="button" className="dashboard-page__ghost-button">
-                  Ver Tudo
-                </button>
-              </div>
-            </div>
+          <div className="dashboard-page__filters">
+            <label className="dashboard-page__filter-field">
+              <span>Periodo inicial</span>
+              <input
+                type="date"
+                value={periodo.inicio}
+                disabled={isLoading || isRefreshing}
+                onChange={(event) =>
+                  setPeriodo((current) => ({ ...current, inicio: event.target.value }))
+                }
+              />
+            </label>
 
-            <div className="dashboard-page__quick-list">
-              {quickItems.map((item) => (
-                <article key={item.title} className="dashboard-page__quick-item">
-                  {item.tag ? (
-                    <span
-                      className={`dashboard-page__quick-tag dashboard-page__quick-tag--${item.tone}`}
-                    >
-                      {item.tag}
-                    </span>
-                  ) : null}
+            <label className="dashboard-page__filter-field">
+              <span>Periodo final</span>
+              <input
+                type="date"
+                value={periodo.fim}
+                disabled={isLoading || isRefreshing}
+                onChange={(event) =>
+                  setPeriodo((current) => ({ ...current, fim: event.target.value }))
+                }
+              />
+            </label>
 
-                  <div className="dashboard-page__quick-row">
-                    <div className="dashboard-page__quick-title-wrap">
-                      <span
-                        className={`dashboard-page__quick-dot dashboard-page__quick-dot--${item.tone}`}
-                      />
-                      <strong className="dashboard-page__quick-title">{item.title}</strong>
-                    </div>
+            <button
+              type="button"
+              className="dashboard-page__primary-button"
+              disabled={isLoading || isRefreshing}
+              onClick={handleApplyPeriod}
+            >
+              {isRefreshing ? "Atualizando..." : "Atualizar dashboard"}
+            </button>
+          </div>
+        </header>
 
-                    <span className="dashboard-page__quick-date">{item.date}</span>
-                  </div>
+        {isLoading ? (
+          <section className="dashboard-page__empty-state">
+            <strong>Carregando dashboard...</strong>
+            <p>Estamos consolidando os lancamentos do periodo selecionado.</p>
+          </section>
+        ) : !dashboard ? (
+          <section className="dashboard-page__empty-state">
+            <strong>Dashboard indisponivel.</strong>
+            <p>Tente atualizar novamente para carregar os dados financeiros.</p>
+          </section>
+        ) : (
+          <>
+            <section className="dashboard-page__summary-grid">
+              {summaryCards.map((card) => (
+                <article
+                  key={card.title}
+                  className={`dashboard-page__summary-card dashboard-page__summary-card--${card.tone}`}
+                >
+                  <span className="dashboard-page__summary-label">{card.title}</span>
+                  <strong className="dashboard-page__summary-value">{card.value}</strong>
                 </article>
               ))}
-            </div>
-          </aside>
-        </section>
+            </section>
+
+            <section className="dashboard-page__content-grid">
+              <section className="dashboard-page__chart-panel">
+                <div className="dashboard-page__panel-header">
+                  <div>
+                    <h2 className="dashboard-page__panel-title">Fluxo de caixa por data</h2>
+                    <p className="dashboard-page__panel-description">
+                      As colunas mostram a variacao diaria prevista. As linhas
+                      comparam o acumulado previsto contra o acumulado ja realizado.
+                    </p>
+                  </div>
+                </div>
+
+                {chartRowsWithBalance.length === 0 ? (
+                  <div className="dashboard-page__empty-inline">
+                    <strong>Nenhum lancamento encontrado no periodo.</strong>
+                    <p>Ajuste o intervalo de datas para consultar outros registros.</p>
+                  </div>
+                ) : (
+                  <div className="dashboard-page__chart-canvas">
+                    <ResponsiveContainer width="100%" height={320}>
+                      <ComposedChart
+                        data={chartRowsWithBalance}
+                        margin={{ top: 10, right: 6, left: -16, bottom: 4 }}
+                      >
+                        <defs>
+                          <linearGradient id="dashboard-income-gradient" x1="0" y1="0" x2="0" y2="1">
+                            <stop offset="5%" stopColor="#2eb875" stopOpacity={0.28} />
+                            <stop offset="95%" stopColor="#2eb875" stopOpacity={0} />
+                          </linearGradient>
+                          <linearGradient id="dashboard-expense-gradient" x1="0" y1="0" x2="0" y2="1">
+                            <stop offset="5%" stopColor="#d96a5f" stopOpacity={0.24} />
+                            <stop offset="95%" stopColor="#d96a5f" stopOpacity={0} />
+                          </linearGradient>
+                        </defs>
+
+                        <CartesianGrid vertical={false} stroke="#e8edf3" strokeDasharray="3 3" />
+                        <XAxis
+                          dataKey="data"
+                          axisLine={false}
+                          tickLine={false}
+                          tick={{ fontSize: 12, fill: "#8da0b3" }}
+                          dy={8}
+                        />
+                        <YAxis
+                          axisLine={false}
+                          tickLine={false}
+                          width={64}
+                          tick={{ fontSize: 12, fill: "#8da0b3" }}
+                          tickFormatter={(value) => `R$ ${Number(value).toFixed(0)}`}
+                        />
+                        <Tooltip
+                          formatter={(value: number, name: string) => [
+                            formatCurrency(Number(value)),
+                            name === "movimentoPrevisto"
+                              ? "Movimento diario"
+                              : name === "previsto"
+                              ? "Previsto acumulado"
+                              : "Realizado acumulado",
+                          ]}
+                          cursor={false}
+                          contentStyle={{
+                            border: "1px solid #dce3ea",
+                            borderRadius: "12px",
+                            boxShadow: "0 12px 28px rgba(15, 23, 42, 0.12)",
+                            fontSize: "12px",
+                          }}
+                        />
+                        <Bar
+                          dataKey="movimentoPrevisto"
+                          fill="#d7e6f2"
+                          radius={[10, 10, 10, 10]}
+                          maxBarSize={10}
+                        />
+                        <Line
+                          type="monotone"
+                          dataKey="previsto"
+                          stroke="#2f6b94"
+                          strokeWidth={3}
+                          dot={false}
+                          activeDot={{ r: 5, fill: "#2f6b94", stroke: "#ffffff", strokeWidth: 2 }}
+                        />
+                        <Line
+                          type="monotone"
+                          dataKey="realizado"
+                          stroke="#2eb875"
+                          strokeWidth={3}
+                          strokeDasharray="8 5"
+                          dot={false}
+                          activeDot={{ r: 5, fill: "#2eb875", stroke: "#ffffff", strokeWidth: 2 }}
+                        />
+                      </ComposedChart>
+                    </ResponsiveContainer>
+                  </div>
+                )}
+
+                <div className="dashboard-page__bottom-stats">
+                  {bottomStats.map((item) => (
+                    <article key={item.label} className="dashboard-page__bottom-stat">
+                      <strong>{item.value}</strong>
+                      <span>{item.label}</span>
+                    </article>
+                  ))}
+                </div>
+              </section>
+
+              <aside className="dashboard-page__side-panel">
+                <div className="dashboard-page__panel-header dashboard-page__panel-header--side">
+                  <div>
+                    <h2 className="dashboard-page__panel-title">Proximos lancamentos</h2>
+                    <p className="dashboard-page__panel-description">
+                      Primeiros itens do periodo ordenados por vencimento.
+                    </p>
+                  </div>
+                </div>
+
+                <div className="dashboard-page__quick-list">
+                  {topLancamentos.length === 0 ? (
+                    <div className="dashboard-page__empty-inline">
+                      <strong>Sem lancamentos para exibir.</strong>
+                      <p>Quando houver itens no periodo, eles aparecerao aqui.</p>
+                    </div>
+                  ) : (
+                    topLancamentos.map((item) => (
+                      <article key={item.id} className="dashboard-page__quick-item">
+                        <span
+                          className={`dashboard-page__quick-tag dashboard-page__quick-tag--${item.status.toLowerCase()}`}
+                        >
+                          {formatStatus(item.status)}
+                        </span>
+
+                        <div className="dashboard-page__quick-row">
+                          <div className="dashboard-page__quick-title-wrap">
+                            <span
+                              className={`dashboard-page__quick-dot dashboard-page__quick-dot--${item.tipo.toLowerCase()}`}
+                            />
+                            <div>
+                              <strong className="dashboard-page__quick-title">
+                                {item.tituloDescricao}
+                              </strong>
+                              <p className="dashboard-page__quick-meta">
+                                {formatTipo(item.tipo)} | {formatCurrency(item.valor)}
+                              </p>
+                            </div>
+                          </div>
+
+                          <span className="dashboard-page__quick-date">
+                            {formatDate(item.dataVencimento)}
+                          </span>
+                        </div>
+                      </article>
+                    ))
+                  )}
+                </div>
+              </aside>
+            </section>
+
+            <section className="dashboard-page__table-panel">
+              <div className="dashboard-page__panel-header">
+                <div>
+                  <h2 className="dashboard-page__panel-title">Lancamentos do periodo</h2>
+                  <p className="dashboard-page__panel-description">
+                    Todos os faturamentos encontrados para o intervalo selecionado.
+                  </p>
+                </div>
+              </div>
+
+              {dashboard.lancamentos.length === 0 ? (
+                <div className="dashboard-page__empty-inline">
+                  <strong>Nenhum lancamento neste periodo.</strong>
+                  <p>Experimente ampliar o intervalo de consulta.</p>
+                </div>
+              ) : (
+                <>
+                  <div className="dashboard-page__table-wrap">
+                    <table className="dashboard-page__table">
+                      <thead>
+                        <tr>
+                          <th>Titulo</th>
+                          <th>Tipo</th>
+                          <th>Vencimento</th>
+                          <th>Valor</th>
+                          <th>Status</th>
+                          <th>Pagamento</th>
+                          <th>Acoes</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {dashboard.lancamentos.map((item) => (
+                          <tr key={item.id}>
+                            <td>{item.tituloDescricao}</td>
+                            <td>{formatTipo(item.tipo)}</td>
+                            <td>{formatDate(item.dataVencimento)}</td>
+                            <td>{formatCurrency(item.valor)}</td>
+                            <td>{formatStatus(item.status)}</td>
+                            <td>{formatDate(item.dataPagamento)}</td>
+                            <td>
+                              {item.status === "PAGO" ? (
+                                <span className="dashboard-page__table-action-hint">
+                                  Pago
+                                </span>
+                              ) : (
+                                <button
+                                  type="button"
+                                  className="dashboard-page__table-action-button"
+                                  onClick={() => openPaymentModal(item)}
+                                >
+                                  Confirmar pagamento
+                                </button>
+                              )}
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+
+                  <div className="dashboard-page__mobile-list">
+                    {dashboard.lancamentos.map((item) => (
+                      <article key={item.id} className="dashboard-page__mobile-card">
+                        <div className="dashboard-page__mobile-card-top">
+                          <strong className="dashboard-page__mobile-card-title">
+                            {item.tituloDescricao}
+                          </strong>
+                          <span className="dashboard-page__mobile-card-status">
+                            {formatStatus(item.status)}
+                          </span>
+                        </div>
+
+                        <div className="dashboard-page__mobile-card-meta">
+                          <span>{formatTipo(item.tipo)}</span>
+                          <span>{formatCurrency(item.valor)}</span>
+                        </div>
+
+                        <p className="dashboard-page__mobile-card-text">
+                          Vencimento: {formatDate(item.dataVencimento)}
+                        </p>
+
+                        <p className="dashboard-page__mobile-card-text">
+                          Pagamento: {formatDate(item.dataPagamento)}
+                        </p>
+
+                        {item.status !== "PAGO" ? (
+                          <button
+                            type="button"
+                            className="dashboard-page__table-action-button"
+                            onClick={() => openPaymentModal(item)}
+                          >
+                            Confirmar pagamento
+                          </button>
+                        ) : null}
+                      </article>
+                    ))}
+                  </div>
+                </>
+              )}
+            </section>
+          </>
+        )}
       </div>
     </main>
   );

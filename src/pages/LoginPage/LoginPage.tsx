@@ -10,6 +10,8 @@ import { validateSignInForm, type ValidationErrors } from "../../validations";
 import type { SignInFormData } from "../../validations";
 import "./LoginPage.css";
 
+const SESSION_EXPIRED_MESSAGE_KEY = "@certus:session-expired-message";
+
 export function LoginPage() {
   const { signIn } = useAuth();
   const navigate = useNavigate();
@@ -27,6 +29,15 @@ export function LoginPage() {
     if (rememberedEmail) {
       setEmail(rememberedEmail);
       setLembrar(true);
+    }
+
+    const sessionExpiredMessage = sessionStorage.getItem(
+      SESSION_EXPIRED_MESSAGE_KEY,
+    );
+
+    if (sessionExpiredMessage) {
+      setAlertMessage(sessionExpiredMessage);
+      sessionStorage.removeItem(SESSION_EXPIRED_MESSAGE_KEY);
     }
   }, []);
 

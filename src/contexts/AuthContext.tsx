@@ -1,4 +1,4 @@
-import { createContext, useEffect, useState, type ReactNode } from "react";
+import { createContext, useState, type ReactNode } from "react";
 import {
   clearAuthSession,
   loadAuthSession,
@@ -23,17 +23,9 @@ function normalizeToken(token: string) {
 }
 
 export function AuthProvider({ children }: AuthProviderProps) {
-  const [user, setUser] = useState<AuthUser | null>(null);
-  const [token, setToken] = useState<string | null>(null);
-
-  useEffect(() => {
-    const session = loadAuthSession();
-
-    if (session) {
-      setUser(session.user);
-      setToken(session.token);
-    }
-  }, []);
+  const [initialSession] = useState<AuthSession | null>(() => loadAuthSession());
+  const [user, setUser] = useState<AuthUser | null>(initialSession?.user ?? null);
+  const [token, setToken] = useState<string | null>(initialSession?.token ?? null);
 
   async function signIn(data: SignInPayload) {
     const response = await signInRequest(data);
