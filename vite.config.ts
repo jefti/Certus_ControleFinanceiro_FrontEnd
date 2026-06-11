@@ -1,4 +1,4 @@
-import { defineConfig } from 'vite'
+import { defineConfig } from 'vitest/config'
 import react from '@vitejs/plugin-react'
 
 // https://vite.dev/config/
@@ -6,5 +6,21 @@ export default defineConfig({
   plugins: [react()],
   optimizeDeps: {
     include: ['recharts', 'lodash/get', 'lodash/isNaN', 'lodash/isNumber', 'lodash/isString'],
+  },
+  test: {
+    environment: 'jsdom',
+    globals: true,
+    setupFiles: './src/test/setup.ts',
+    exclude: ['e2e/**', 'node_modules/**'],
+    coverage: {
+      provider: 'v8',
+      reporter: ['text', 'html'],
+      include: [
+        'src/validations/**/*.ts',
+        'src/storage/**/*.ts',
+        'src/routes/**/*.tsx',
+        'src/services/**/*.ts',
+      ],
+    },
   },
 })
