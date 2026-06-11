@@ -1,4 +1,4 @@
-import { createContext, useState, type ReactNode } from "react";
+import { useState, type ReactNode } from "react";
 import {
   clearAuthSession,
   loadAuthSession,
@@ -11,12 +11,11 @@ import type {
   SignInPayload,
 } from "../types/auth";
 import { signInRequest } from "../services/authService";
+import { AuthContext } from "./authContextDefinition";
 
 interface AuthProviderProps {
   children: ReactNode;
 }
-
-export const AuthContext = createContext({} as AuthContextData);
 
 function normalizeToken(token: string) {
   return token.replace(/^Bearer\s+/i, "");
@@ -53,6 +52,6 @@ export function AuthProvider({ children }: AuthProviderProps) {
     signIn,
     signOut,
   };
-  
+
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }

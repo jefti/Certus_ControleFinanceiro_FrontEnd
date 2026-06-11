@@ -19,11 +19,6 @@ export function PrivateHeader() {
   const profileRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
-    setIsMobileCadastrosOpen(false);
-    setIsProfileMenuOpen(false);
-  }, [location.pathname]);
-
-  useEffect(() => {
     if (!isMobileCadastrosOpen && !isProfileMenuOpen) {
       return;
     }
@@ -58,6 +53,11 @@ export function PrivateHeader() {
     navigate("/login");
   }
 
+  function closeMenus() {
+    setIsMobileCadastrosOpen(false);
+    setIsProfileMenuOpen(false);
+  }
+
   function isCadastrosActive() {
     return (
       location.pathname === "/centro-de-custos" || location.pathname === "/titulos"
@@ -69,7 +69,7 @@ export function PrivateHeader() {
       <header className="app-header app-header--private">
         <div className="app-header__inner">
           <div className="app-header__nav-group">
-            <Link className="app-header__brand" to="/inicio">
+            <Link className="app-header__brand" to="/inicio" onClick={closeMenus}>
               <img
                 className="app-header__logo"
                 src="/logo-certus-resumed.png"
@@ -89,10 +89,10 @@ export function PrivateHeader() {
                 </button>
 
                 <div className="app-header__dropdown-menu">
-                  <Link className="app-header__dropdown-item" to="/centro-de-custos">
+                  <Link className="app-header__dropdown-item" to="/centro-de-custos" onClick={closeMenus}>
                     Centro de custo
                   </Link>
-                  <Link className="app-header__dropdown-item" to="/titulos">
+                  <Link className="app-header__dropdown-item" to="/titulos" onClick={closeMenus}>
                     Titulos
                   </Link>
                 </div>
@@ -103,6 +103,7 @@ export function PrivateHeader() {
                   `app-header__link${isActive ? " app-header__link--active" : ""}`
                 }
                 to="/dashboard"
+                onClick={closeMenus}
               >
                 Dashboard
               </NavLink>
@@ -140,7 +141,7 @@ export function PrivateHeader() {
               </div>
 
               <div className="app-header__profile-menu">
-                <Link className="app-header__dropdown-item" to="/usuario">
+                <Link className="app-header__dropdown-item" to="/usuario" onClick={closeMenus}>
                   Meu perfil
                 </Link>
 
@@ -172,6 +173,7 @@ export function PrivateHeader() {
                 }`
               }
               to="/centro-de-custos"
+              onClick={closeMenus}
             >
               Centro de custo
             </NavLink>
@@ -183,6 +185,7 @@ export function PrivateHeader() {
                 }`
               }
               to="/titulos"
+              onClick={closeMenus}
             >
               Titulos
             </NavLink>
@@ -199,6 +202,7 @@ export function PrivateHeader() {
                 }`
               }
               to={item.path}
+              onClick={closeMenus}
             >
               {item.label}
             </NavLink>
