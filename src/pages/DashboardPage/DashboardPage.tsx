@@ -27,6 +27,8 @@ function getCurrentMonthRange() {
   };
 }
 
+const initialMonthRange = getCurrentMonthRange();
+
 function formatCurrency(value: number) {
   return value.toLocaleString("pt-BR", {
     style: "currency",
@@ -116,7 +118,7 @@ function buildDailyChartRows(
 }
 
 export function DashboardPage() {
-  const [periodo, setPeriodo] = useState(getCurrentMonthRange);
+  const [periodo, setPeriodo] = useState(initialMonthRange);
   const [dashboard, setDashboard] = useState<DashboardResponse | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isRefreshing, setIsRefreshing] = useState(false);
@@ -126,7 +128,7 @@ export function DashboardPage() {
   const [dataPagamento, setDataPagamento] = useState("");
 
   useEffect(() => {
-    void loadDashboard(periodo.inicio, periodo.fim, true);
+    void loadDashboard(initialMonthRange.inicio, initialMonthRange.fim, true);
   }, []);
 
   async function loadDashboard(
