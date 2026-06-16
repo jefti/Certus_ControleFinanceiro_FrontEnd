@@ -11,9 +11,9 @@ export const shortcuts: HomeShortcut[] = [
   {
     title: 'Dashboard',
     description:
-      'Veja o resumo financeiro principal e acompanhe a evolu\u00e7\u00e3o da opera\u00e7\u00e3o.',
+      'Veja o resumo financeiro principal e acompanhe a evolução da operação.',
     path: '/dashboard',
-    status: 'Dispon\u00edvel agora',
+    status: 'Disponível agora',
     buttonLabel: 'Abrir painel',
   },
   {
@@ -24,19 +24,19 @@ export const shortcuts: HomeShortcut[] = [
     buttonLabel: 'Abrir cadastro',
   },
   {
-    title: 'T\u00edtulos',
+    title: 'Títulos',
     description:
-      'A \u00e1rea de t\u00edtulos est\u00e1 sendo preparada para concentrar os registros financeiros do projeto.',
+      'A área de títulos concentra os registros financeiros do projeto.',
     path: '/titulos',
-    status: 'Em constru\u00e7\u00e3o',
-    buttonLabel: 'Ver planejamento',
+    status: 'Disponível agora',
+    buttonLabel: 'Abrir cadastro',
   },
   {
-    title: 'Usu\u00e1rio',
+    title: 'Usuário',
     description:
-      'Consulte seus dados atuais e acompanhe a evolu\u00e7\u00e3o da \u00e1rea de perfil da conta.',
+      'Consulte seus dados atuais e acompanhe a evolução da área de perfil da conta.',
     path: '/usuario',
-    status: 'Conta',
+    status: 'Disponível agora',
     buttonLabel: 'Acessar perfil',
   },
 ]
