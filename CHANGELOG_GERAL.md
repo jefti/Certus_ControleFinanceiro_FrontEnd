@@ -1,6 +1,6 @@
 # Changelog Geral
 
-Este changelog consolida as entregas do **Certus Controle Financeiro** considerando os repositórios de front-end e back-end em conjunto. Somente mudanças presentes na branch `main` entram como commits de referência.
+Este changelog consolida as entregas do **Certus Controle Financeiro** considerando os repositórios de front-end e back-end em conjunto. A revisão atual usa as branches `feat/changelog` dos dois repositórios, sincronizadas com a `main`, conforme orientação da equipe.
 
 Arquivos relacionados:
 
@@ -144,11 +144,34 @@ Arquivos relacionados:
 
 ### Back-end
 
-- não houve commits de back-end na branch `main` dentro desta janela
+- correções no relatório de testes do back-end
+- inclusão de dependências de validação e segurança
+- validação de payloads de entrada nos endpoints
+- sanitização de textos persistidos
+- limitação de tentativas de login
+- teste automatizado para validar rate limit no fluxo de autenticação
 
 ### User Stories
 
-- `US31`
+- `US31`, `US32`
+
+### Commits de referência
+
+**Front-end**
+
+- **2026-06-11** `tests: tests setup`
+- **2026-06-11** `Merge pull request #33 from jefti/feat/testes`
+
+**Back-end**
+
+- **2026-06-11** `feat: test report fixes`
+- **2026-06-11** `Merge pull request #41 from jefti/feat/relatorioTestes`
+- **2026-06-12** `build(security): add validation and protection dependencies`
+- **2026-06-12** `feat(validation): validate incoming request payloads`
+- **2026-06-12** `feat(security): sanitize persisted text inputs`
+- **2026-06-12** `feat(auth): rate limit and validate login attempts`
+- **2026-06-12** `test(auth): verify login rate limit in security chain`
+- **2026-06-12** `Merge pull request #42 from jefti/feat/relatorioTestes`
 
 ## Sprint 008
 
@@ -161,7 +184,9 @@ Arquivos relacionados:
 
 ### Back-end
 
-- não houve commits de back-end na branch `main` dentro desta janela
+- integração da branch `develop` atualizada na branch principal de trabalho
+- restauração dos documentos do projeto no repositório back-end
+- inclusão de links para changelog e métricas no README do back-end
 
 ### Documentação do projeto
 
@@ -174,6 +199,22 @@ Arquivos relacionados:
 ### User Stories
 
 - `US32`, `US33`
+
+### Commits de referência
+
+**Front-end**
+
+- **2026-06-16** `docs: atualiza README com documentação completa do front-end`
+- **2026-06-16** `Merge pull request #34 from jefti/feat/readme`
+- **2026-06-16** `Merge pull request #35 from jefti/develop`
+- **2026-06-16** `fix: exchange outdated text information`
+- **2026-06-16** `Merge pull request #36 from jefti/fix/textErrors`
+- **2026-06-17** `Doc: changelogs e metrics`
+
+**Back-end**
+
+- **2026-06-16** `Merge pull request #43 from jefti/develop`
+- **2026-06-17** restauração dos documentos `CHANGELOG.md`, `CHANGELOG_GERAL.md`, `METRICAS_PROJETO.md` e links no `README.md`
 
 ## Resultado Geral
 

@@ -2,16 +2,10 @@
 
 Este arquivo registra as funcionalidades implementadas no **front-end** do projeto **Certus Controle Financeiro**, organizadas por sprint a partir do histórico real do Git e alinhadas ao backlog do produto.
 
-Fontes utilizadas:
-
-- histórico de commits da branch `main` do repositório `Certus_ControleFinanceiro_FrontEnd`
-- backlog do projeto
-- changelog consolidado produzido pela equipe
-
 Observações:
 
 - este documento cobre apenas as entregas do **front-end**
-- somente mudanças presentes na branch `main` entram como commits de referência
+- somente mudanças presentes na branch atual sincronizada com a `main` entram como commits de referência
 - merges e commits exclusivamente administrativos foram consolidados quando não representavam funcionalidade nova
 - as datas seguem o histórico do Git
 
@@ -210,10 +204,11 @@ Observações:
 - `US32` Relatório da sprint
 - `US33` Changelog do projeto
 
-### Commits de referência na `main`
+### Commits de referência na branch atual
 
 - **2026-06-16** `docs: atualiza README com documentação completa do front-end`
 - **2026-06-16** `fix: exchange outdated text information`
+- **2026-06-17** `Doc: changelogs e metrics`
 
 ### Alterações documentais desta entrega
 
