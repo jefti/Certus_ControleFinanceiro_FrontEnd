@@ -300,6 +300,9 @@ O fluxo coberto valida o redirecionamento de visitantes para o login, a autentic
 Para regras de negócio, modelagem e configuração da API, consulte o repositório do back-end:
 
 - [Certus Controle Financeiro — Back-end (Spring Boot)](https://github.com/jefti/Certus_ControleFinanceiro_BackEnd/tree/main)
+- [Changelog do front-end](./CHANGELOG.md)
+- [Changelog geral do projeto](./CHANGELOG_GERAL.md)
+- [Métricas consolidadas do projeto](./METRICAS_PROJETO.md)
 
 ## Autores
 
